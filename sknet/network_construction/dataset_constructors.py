@@ -123,7 +123,7 @@ class KNNConstructor(BaseConstructor):
 	    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
 	        The input data.
 	    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes), default=None
-	        The predicted classes.
+	        The true classes.
 
 	    Notes
 	    -----
@@ -214,7 +214,7 @@ class EpsilonRadiusConstructor(BaseConstructor):
 	    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
 	        The input data.
 	    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes), default=None
-	        The predicted classes.
+	        The true classes.
 
 	    Notes
 	    -----
@@ -317,7 +317,7 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
 	    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
 	        The input data.
 	    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes), default=None
-	        The predicted classes.
+	        The true classes.
 
 	    Notes
 	    -----
