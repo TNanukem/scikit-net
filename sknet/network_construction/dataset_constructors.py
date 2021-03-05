@@ -298,7 +298,7 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
     approaches hopes to overcome the limitations of the individual components, allowing for a
     better network construction. The equation that runs this method is defined as:
 
-    neighbor(v_i) = epsilon-radius(v_i) if |epsilon-radius(v_i)| > k else knn(v_i)
+    ``neighbor(v_i) = epsilon-radius(v_i) if |epsilon-radius(v_i)| > k else knn(v_i)``
 
     References
     ----------
