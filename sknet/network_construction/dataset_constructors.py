@@ -123,7 +123,7 @@ class KNNConstructor(BaseConstructor):
 	    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
 	        The input data.
 	    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes), default=None
-	        The predicted classes.
+	        The true classes.
 
 	    Notes
 	    -----
@@ -214,7 +214,7 @@ class EpsilonRadiusConstructor(BaseConstructor):
 	    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
 	        The input data.
 	    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes), default=None
-	        The predicted classes.
+	        The true classes.
 
 	    Notes
 	    -----
@@ -298,7 +298,7 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
     approaches hopes to overcome the limitations of the individual components, allowing for a
     better network construction. The equation that runs this method is defined as:
 
-    neighbor(v_i) = epsilon-radius(v_i) if |epsilon-radius(v_i)| > k else knn(v_i)
+    ``neighbor(v_i) = epsilon-radius(v_i) if |epsilon-radius(v_i)| > k else knn(v_i)``
 
     References
     ----------
@@ -317,7 +317,7 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
 	    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
 	        The input data.
 	    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes), default=None
-	        The predicted classes.
+	        The true classes.
 
 	    Notes
 	    -----
