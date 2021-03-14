@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 2
 
    sknet.network_construction
+   sknet.supervised
 
 Module contents
 ---------------
