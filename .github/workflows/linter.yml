@@ -13,4 +13,5 @@ jobs:
     - name: linting
       uses: alexanderdamiani/pylinter@v1.1.0
       with:
-          mypy-flags: '--ignore-missing-imports'
+          skip-mypy: true
+          skip-isort: true
