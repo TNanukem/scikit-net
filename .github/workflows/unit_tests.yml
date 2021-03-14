@@ -3,7 +3,7 @@ name: Unit Tests
 on: [pull_request]
 
 jobs:
-  python-lint:
+  python-pytest:
     runs-on: ubuntu-latest
     name: unit tests
     steps:
