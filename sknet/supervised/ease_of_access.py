@@ -143,18 +143,18 @@ class EaseOfAccess(metaclass=ABCMeta):
             P = np.array(P).reshape(w_tilda.shape)
 
             # Computes the convergence
-            P_inf = self._stationary_distribution(P, self.method)
+            self.P_inf = self._stationary_distribution(P, self.method)
 
             # Associates each class with the probabilities
             res = pd.DataFrame()
-            res['prob'] = P_inf
+            res['prob'] = self.P_inf
             res['y'] = self.y
             res.sort_values('prob', inplace=True, ascending=False)
 
             # Gets the t classes from P_inf and set to the majority
-            tau = res.iloc[:self.t]
+            self.tau = res.iloc[:self.t]
 
-            predictions.append(self._aggregation_method(tau))
+            predictions.append(self._aggregation_method(self.tau))
 
         return predictions
 
@@ -173,7 +173,7 @@ class EaseOfAccess(metaclass=ABCMeta):
     def _stationary_distribution(self, W, method):
 
         if method == 'power':
-            return np.linalg.matrix_power(np.array(W)(np.array(W), 50))[0]
+            return np.linalg.matrix_power(np.array(W), 50)[0]
 
         elif method == 'eigenvalue':
             evals, evecs = np.linalg.eig(np.array(W).T)
