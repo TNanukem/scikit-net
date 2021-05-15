@@ -29,7 +29,7 @@ def X_y_generator():
 
 def test_knn_fit(X_y_generator):
 
-    knn = dataset_constructors.KNNConstructor(k=3)
+    knn = dataset_constructors.KNNConstructor(k=3, sep_comp=False)
 
     with pytest.raises(Exception):
         knn.transform()
@@ -53,7 +53,8 @@ def test_knn_fit(X_y_generator):
 
 def test_epsilon_radius_fit(X_y_generator):
 
-    eps = dataset_constructors.EpsilonRadiusConstructor(epsilon=1)
+    eps = dataset_constructors.EpsilonRadiusConstructor(epsilon=1,
+                                                        sep_comp=False)
 
     with pytest.raises(Exception):
         eps.transform()
@@ -73,7 +74,7 @@ def test_epsilon_radius_fit(X_y_generator):
 def test_knn_epsilon_fit(X_y_generator):
 
     eps_knn = dataset_constructors.KNNEpislonRadiusConstructor(
-      k=2, epsilon=1.5)
+      k=2, epsilon=1.5, sep_comp=False)
 
     with pytest.raises(Exception):
         eps_knn.transform()

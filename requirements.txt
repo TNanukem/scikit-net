@@ -19,5 +19,6 @@ six==1.15.0
 sklearn==0.0
 threadpoolctl==2.1.0
 toml==0.10.2
+tqdm==4.59.0
 typing-extensions==3.7.4.3
 zipp==3.4.1

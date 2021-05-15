@@ -16,6 +16,7 @@ Submodules
    :maxdepth: 2
 
    sknet.network_construction.dataset_constructors
+   sknet.network_construction.general_constructors
 
 Module contents
 ---------------

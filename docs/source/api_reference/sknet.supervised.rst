@@ -1,6 +1,14 @@
 sknet.supervised package
 ========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   sknet.supervised.tests
+
 Submodules
 ----------
 
@@ -8,6 +16,7 @@ Submodules
    :maxdepth: 2
 
    sknet.supervised.ease_of_access
+   sknet.supervised.high_level_classification
 
 Module contents
 ---------------
