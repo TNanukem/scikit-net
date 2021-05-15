@@ -9,6 +9,7 @@ Subpackages
 
    sknet.network_construction
    sknet.supervised
+   sknet.utils
 
 Module contents
 ---------------

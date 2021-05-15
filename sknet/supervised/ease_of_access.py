@@ -19,7 +19,7 @@ class EaseOfAccess(metaclass=ABCMeta):
     epsilon : float, default=0.2
         The perturbance to be applied to the weights matrix after the
         insertion of the test data
-    t : int, deafult=3
+    t : int, default=3
         Number of points on the convergence probabilities vector
         to classify the test data
     method : str, default='eigenvalue'
@@ -87,10 +87,15 @@ class EaseOfAccess(metaclass=ABCMeta):
         distance between test classes and the other nodes on the graph
         can be calculated
 
+        According to the paper implementation, the network should not
+        have separated components for each class, if passing an already
+        created network to the method, be mindful of that
+
         """
 
         if G is None:
             # Generates the graph from X and y
+            self.transformer.set_sep_comp(False)
             self.G = self.transformer.fit_transform(X, y)
         else:
             self.G = G
@@ -183,7 +188,7 @@ class EaseOfAccess(metaclass=ABCMeta):
 
             stationary = evec1 / evec1.sum()
 
-            return stationary
+            return stationary.real
 
         else:
             raise Exception("{} is not an available method to calculate the markov chain \
@@ -235,8 +240,8 @@ class EaseOfAccessClassifier(EaseOfAccess):
     Examples
     --------
     >>> from sklearn.datasets import load_iris
-    >>> from dataset_constructors import KNNConstructor
-    >>> from ease_of_access import EaseOfAccessClassifier
+    >>> from sknet.network_construction import KNNConstructor
+    >>> from sknet.supervised import EaseOfAccessClassifier
     >>> X, y = load_iris(return_X_y = True)
     >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=0.33)

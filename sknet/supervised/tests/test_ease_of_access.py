@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 
-from sknet.network_construction import dataset_constructors
-from sknet.supervised import ease_of_access
+from sknet.network_construction import KNNConstructor
+from sknet.supervised import EaseOfAccessClassifier
 
 
 @pytest.fixture
@@ -22,8 +22,8 @@ def X_y_generator():
 
 @pytest.fixture
 def module_generator_eigen(X_y_generator):
-    knn = dataset_constructors.KNNConstructor(k=3)
-    classifier = ease_of_access.EaseOfAccessClassifier(knn, t=5)
+    knn = KNNConstructor(k=3)
+    classifier = EaseOfAccessClassifier(knn, t=5)
     classifier.fit(X_y_generator[0], X_y_generator[1])
 
     return classifier
@@ -31,9 +31,8 @@ def module_generator_eigen(X_y_generator):
 
 @pytest.fixture
 def module_generator_power(X_y_generator):
-    knn = dataset_constructors.KNNConstructor(k=3)
-    classifier = ease_of_access.EaseOfAccessClassifier(knn, t=5,
-                                                       method='power')
+    knn = KNNConstructor(k=3)
+    classifier = EaseOfAccessClassifier(knn, t=5, method='power')
     classifier.fit(X_y_generator[0], X_y_generator[1])
 
     return classifier
@@ -51,7 +50,6 @@ def class_generator(module_generator_eigen,
 
 
 def test__stationary_distribution(class_generator):
-
     np.testing.assert_almost_equal(class_generator[0].P_inf,
                                    class_generator[1].P_inf)
 
