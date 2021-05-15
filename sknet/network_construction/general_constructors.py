@@ -1,4 +1,4 @@
-import networkx as nx 
+import networkx as nx
 
 from abc import ABCMeta, abstractmethod
 from sknet.utils import NetworkTypesHandler
