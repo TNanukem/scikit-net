@@ -1,0 +1,6 @@
+codecov:
+  token: 92c22736-5259-4282-a4a6-69bfd6d9f3c7
+
+ignore:
+  - "*/tests/*"
+  - "*/sknet_env/*"
