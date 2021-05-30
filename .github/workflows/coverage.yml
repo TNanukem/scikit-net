@@ -14,7 +14,8 @@ jobs:
 
     - name: Generate Report
       run: |
-        pip install coverage
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
         coverage run -m pytest -vv
 
     - name: Upload Coverage to Codecov
