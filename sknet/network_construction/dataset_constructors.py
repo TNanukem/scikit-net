@@ -12,7 +12,7 @@ class BaseConstructor(metaclass=ABCMeta):
     complex network by using the several different transformation
     methods
 
-    Do not use this abstract class, use derived classes instead
+    Do not use this abstract class, use the derived classes instead
 
     """
 
