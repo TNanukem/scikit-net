@@ -10,12 +10,11 @@ class NetworkMetricsHandler():
 
     def _generate_metrics_mapper(self):
         mapper = {
-            'betweenness': nx.betweenness_centrality,
             'assortativity': nx.degree_assortativity_coefficient,
             'clustering_coefficient': nx.average_clustering,
             'average_degree': nx.average_degree_connectivity,
             'transitivity': nx.transitivity,
-            'connectivity': {},
+            'connectivity': nx.average_node_connectivity,
         }
         return mapper
 
@@ -23,7 +22,9 @@ class NetworkMetricsHandler():
         mapper = {
             'assortativity': 2,
             'clustering_coefficient': 1,
-            'average_degree': {}
+            'average_degree': 0,
+            'transitivity': 0,
+            'connectivity': 0,
         }
         return mapper
 
