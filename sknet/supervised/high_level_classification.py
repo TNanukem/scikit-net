@@ -1,6 +1,5 @@
 import copy
 import numpy as np
-
 from tqdm import tqdm
 
 from sknet.utils import NetworkMetricsHandler
@@ -16,8 +15,8 @@ class HighLevelClassifier():
 
     Parameters
     ----------
-    transformer : BaseConstructor inhrerited class
-        A transformer class to transform the tabular data into a
+    constructor : BaseConstructor inhrerited class
+        A constructor class to transform the tabular data into a
         network
     low_level : str
         The low-level model to be used. See available options on the
@@ -96,7 +95,7 @@ class HighLevelClassifier():
         if np.sum(self.alphas) != 1:
             raise ValueError('Alphas should sum to one')
 
-    def fit(self, X, y):
+    def fit(self, X, y, G=None):
         """Fit the classifier by fitting the low-level model and
         creating the high-level classification network
 
@@ -107,11 +106,18 @@ class HighLevelClassifier():
         y : {ndarray, pandas series}, shape (n_samples,) or
         (n_samples, n_classes), default=None
             The true classes
+        G : NetworkX Graph, default=None
+            If the graph was already generated, then this parameter will
+            make as so the transformer is not called. Notice that each class
+            should be formed of only one class
 
         """
         # Fits the transformer to generate the network
-        self.constructor.set_sep_comp(True)
-        self.G = self.constructor.fit_transform(X, y)
+        if G is not None:
+            self.G = G
+        else:
+            self.constructor.set_sep_comp(True)
+            self.G = self.constructor.fit_transform(X, y)
 
         # Fits the low level model
         self.low_level_model.fit(X, y)

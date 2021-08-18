@@ -17,6 +17,7 @@ Submodules
 
    sknet.network_construction.dataset_constructors
    sknet.network_construction.general_constructors
+   sknet.network_construction.time_series_constructors
 
 Module contents
 ---------------
