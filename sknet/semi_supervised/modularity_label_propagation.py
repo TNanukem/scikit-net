@@ -48,7 +48,7 @@ class ModularityLabelPropagation():
     ----------
     Silva, Thiago & Zhao, Liang. (2012). Semi-Supervised Learning Guided
     by the Modularity Measure in Complex Networks. Neurocomputing. 78.
-    30-37. 10.1016/j.neucom.2011.04.042. 
+    30-37. 10.1016/j.neucom.2011.04.042.
 
     Silva, Thiago & Zhao, Liang. (2016). Machine Learning in Complex
     Networks. 10.1007/978-3-319-17290-3.
