@@ -1,5 +1,5 @@
 # sknet
 
-[![codecov](https://codecov.io/gh/TNanukem/sknet/branch/main/graph/badge.svg?token=PIQ338YNK1)](https://codecov.io/gh/TNanukem/sknet)
+![Codecov branch](https://img.shields.io/codecov/c/github/tnanukem/sknet/develop?token=PIQ338YNK1)
 
 A framework for machine learning in complex networks
