@@ -248,15 +248,16 @@ class StochasticParticleCompetition():
     def _calculate_P_rean(self, N_bar):
         aux = np.zeros((self.V, self.V, self.K))
 
-        den = [np.sum(
-                [np.argmax(N_bar[u, :]) == k for u in range(self.V)]
-            ) for k in range(self.K)]
+        for k in range(self.K):
+            den = np.sum(
+                    [np.argmax(N_bar[u, :]) == k for u in range(self.V)]
+                )
+            for j in range(self.V):
+                num = 0
+                if np.argmax(N_bar[j, :]) == k:
+                    num = 1
 
-        num = [
-            [np.sum(np.argmax(N_bar[j, :]) == k) for j in range(self.V)
-             ] for k in range(self.K)
-        ]
-        aux[:, :, :] = [np.array(num)/np.array(den) for i in range(self.V)]
+                aux[:, j, k] = [num/den for i in range(self.V)]
 
         return aux
 
