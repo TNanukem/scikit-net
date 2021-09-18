@@ -105,7 +105,7 @@ class EaseOfAccess(metaclass=ABCMeta):
             self.G = self.G.to_undirected()
 
         # Generates W matrix
-        self.W = nx.to_numpy_matrix(self.G)
+        self.W = nx.to_numpy_array(self.G)
 
         self.X = X
         self.y = y

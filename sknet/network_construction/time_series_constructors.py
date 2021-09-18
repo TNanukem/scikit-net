@@ -160,7 +160,7 @@ class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         C[C < self.r] = 0
         C[C >= self.r] = 1
 
-        self.G = nx.from_numpy_matrix(C)
+        self.G = nx.from_numpy_array(C)
 
         self.X = X
 
@@ -238,6 +238,6 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         C[C < self.r] = 0
         C[C >= self.r] = 1
 
-        self.G = nx.from_numpy_matrix(C)
+        self.G = nx.from_numpy_array(C)
 
         self.X = X

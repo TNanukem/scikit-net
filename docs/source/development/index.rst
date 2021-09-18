@@ -3,14 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to sknet's documentation!
-=================================
+Development
+===========
+
+Soon
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+   :maxdepth: 2
 
-   getting_started/index
-   user_guide/index
-   api_reference/index
-   development/index
