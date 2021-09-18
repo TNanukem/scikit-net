@@ -10,6 +10,7 @@ Subpackages
    sknet.network_construction
    sknet.semi_supervised
    sknet.supervised
+   sknet.unsupervised
    sknet.utils
 
 Module contents
