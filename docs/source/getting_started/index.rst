@@ -11,3 +11,9 @@ Soon
 .. toctree::
    :maxdepth: 2
 
+   installation
+   transforming_data
+   supervised_learning
+   semi_supervised_learning
+   unsupervised_learning
+

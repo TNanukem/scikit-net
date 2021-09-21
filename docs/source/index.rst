@@ -6,6 +6,9 @@
 Welcome to sknet's documentation!
 =================================
 
+The sknet is a scikit-learn compatible and NetworkX compatible library that implements tools for
+applying machine learning algorithms to complex networks.
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
