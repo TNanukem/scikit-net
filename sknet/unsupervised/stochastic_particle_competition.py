@@ -12,11 +12,6 @@ class StochasticParticleCompetition():
 
     Parameters
     ----------
-    constructor : BaseConstructor inhrerited class, optional(default=None)
-        A constructor class to transform the tabular data into a
-        network. It can be set to None if a complex network is directly
-        passed to the ``fit`` method. Notice that you should use 'sep_com' as
-        False on the constructor.
     K : int, optional(default=3)
         The number of particles to compete which will be the number of
         resulting clusters
@@ -32,14 +27,14 @@ class StochasticParticleCompetition():
     epsilon : float, optional(default=0.01)
         The minimum difference between the dominance matrix variation
         before finishing the competition.
-    n_iters : int, optional(default=500)
+    n_iter : int, optional(default=500)
         The maximum number of steps before finishing the competition.
         The process will stop when either the convergence happens given epsilon
         or the maximum number of steps is reached
 
     Attributes
     ----------
-    clusters : {ndarray, pandas series}, shape (n_samples, 1)
+    clusters_ : {ndarray, pandas series}, shape (n_samples, 1)
         The cluster of each sample
 
     Examples
@@ -73,22 +68,32 @@ class StochasticParticleCompetition():
     Networks. 10.1007/978-3-319-17290-3.
 
     """
+    _estimator_type = 'clusterer'
 
-    def __init__(self, constructor=None, K=3, lambda_=0.5, delta=0.1,
-                 omega_max=10, omega_min=1, epsilon=0.01, n_iters=500,
+    def __init__(self, K=3, lambda_=0.5, delta=0.1,
+                 omega_max=10, omega_min=1, epsilon=0.01, n_iter=500,
                  random_state=None):
-        self.constructor = constructor
         self.K = K
         self.lambda_ = lambda_
         self.delta = delta
         self.epsilon = epsilon
         self.omega_max = omega_max
         self.omega_min = omega_min
-        self.n_iters = n_iters
+        self.n_iter = n_iter
         self.random_state = random_state
-        np.random.seed(self.random_state)
+        np.random.seed(self.random_state)  # Arrumar
 
-    def fit(self, X=None, y=None, G=None):
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
+
+    def get_params(self, deep=True):
+        return {'K': self.K, 'lambda_': self.lambda_, 'delta': self.delta,
+                'omega_max': self.omega_max, 'omega_min': self.omega_min,
+                'n_iter': self.n_iter, 'random_state': self.random_state}
+
+    def fit(self, X=None, y=None, G=None, constructor=None):
         """Fit the algorithms by using the particle competition
         to cluster the data points
 
@@ -105,9 +110,14 @@ class StochasticParticleCompetition():
             The network to have its communities detected. Can be
             None if X is not None in which case the constructor
             will be used to generate the network.
+        constructor : BaseConstructor inhrerited class, optional(default=None)
+            A constructor class to transform the tabular data into a
+            network. It can be set to None if a complex network is directly
+            passed to the ``fit`` method. Notice that you should use 'sep_com'
+            as False on the constructor.
 
         """
-
+        self.constructor = constructor
         if X is None and G is None:
             raise Exception('X or G must be defined')
 
@@ -169,7 +179,9 @@ class StochasticParticleCompetition():
             t += 1
             convergence = self._verify_convergence(N_bar, old_N_Bar)
 
-        self.clusters = np.argmax(N_bar, axis=1)
+        self.clusters_ = np.argmax(N_bar, axis=1)
+
+        return self
 
     def predict(self, X=None, G=None):
         """
@@ -206,7 +218,7 @@ class StochasticParticleCompetition():
 
         Returns
         -------
-        clusters : {array-like} of shape (n_samples)
+        clusters_ : {array-like} of shape (n_samples)
                    The cluster of each data point
 
         """

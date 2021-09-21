@@ -6,19 +6,11 @@ class ModularityLabelPropagation():
     Semi-supervised method that propagates labels to instances not
     classified using the Modularity Propagation method.
 
-    Parameters
-    ----------
-    constructor : BaseConstructor inhrerited class, optional(default=None)
-        A constructor class to transform the tabular data into a
-        network. It can be set to None if a complex network is directly
-        passed to the ``fit`` method. Notice that you should use 'sep_com' as
-        False on the constructor.
-
     Attributes
     ----------
-    generated_y : {ndarray, pandas series}, shape (n_samples, 1)
+    generated_y_ : {ndarray, pandas series}, shape (n_samples, 1)
         The label list
-    generated_G : NetworkX Network
+    generated_G_ : NetworkX Network
         The constructed network on the fit of the model
 
     Examples
@@ -33,7 +25,7 @@ class ModularityLabelPropagation():
     >>> y[110:120] = np.nan
     >>> propagator = ModularityLabelPropagation(knn_c)
     >>> propagator.fit(X, y)
-    >>> propagator.generated_y
+    >>> propagator.generated_y_
     array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,
@@ -54,10 +46,18 @@ class ModularityLabelPropagation():
     Networks. 10.1007/978-3-319-17290-3.
 
     """
-    def __init__(self, constructor=None):
-        self.constructor = constructor
+    def __init__(self):
+        self.estimator_type = 'classifier'
 
-    def fit(self, X=None, y=None, G=None):
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
+
+    def get_params(self, deep=True):
+        return {}
+
+    def fit(self, X=None, y=None, G=None, constructor=None):
         """Fit the propagator by using the modularity measure
         to propagate the labels to non-labeled examples
 
@@ -76,9 +76,14 @@ class ModularityLabelPropagation():
             will be used to generate the network. Labels must be into
             the data of each node with the 'class' key. Missing labels
             should be valued np.nan
+        constructor : BaseConstructor inhrerited class, optional(default=None)
+            A constructor class to transform the tabular data into a
+            network. It can be set to None if a complex network is directly
+            passed to the ``fit`` method. Notice that you should use 'sep_com'
+            as False on the constructor.
 
         """
-
+        self.constructor = constructor
         if y is None and G is None:
             raise('Both y and G are None!')
 
@@ -120,8 +125,10 @@ class ModularityLabelPropagation():
                     continue
 
             missing_elements = len(y[np.isnan(y)])
-        self.generated_y = y
-        self.generated_G = G
+        self.generated_y_ = y
+        self.generated_G_ = G
+
+        return self
 
     def get_propagated_labels(self):
         """
@@ -129,11 +136,11 @@ class ModularityLabelPropagation():
 
         Returns
         -------
-        generated_y : {ndarray, pandas series}, shape (n_samples, 1)
+        generated_y_ : {ndarray, pandas series}, shape (n_samples, 1)
             The label list
         """
 
-        return self.generated_y
+        return self.generated_y_
 
     def get_propagated_network(self):
         """
@@ -141,10 +148,10 @@ class ModularityLabelPropagation():
 
         Returns
         --------
-        generated_G : NetworkX Network
+        generated_G_ : NetworkX Network
             The constructed network on the fit of the model"""
 
-        return self.generated_G
+        return self.generated_G_
 
     def _increment_modularity_matrix(self, G):
         N = len(G.nodes)
