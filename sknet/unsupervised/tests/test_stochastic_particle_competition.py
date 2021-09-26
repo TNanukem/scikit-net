@@ -32,11 +32,11 @@ def result_generator():
 
 def test_fit_X(X_y_generator, result_generator):
     knn_c = KNNConstructor(k=5, sep_comp=False)
-    SPC = StochasticParticleCompetition(knn_c, random_state=42, n_iters=3)
-    SPC.fit(X_y_generator[0])
+    SPC = StochasticParticleCompetition(random_state=42, n_iter=3)
+    SPC.fit(X_y_generator[0], constructor=knn_c)
 
     np.testing.assert_equal(result_generator,
-                            np.array(SPC.clusters,
+                            np.array(SPC.clusters_,
                                      dtype='float32')
                             )
 
@@ -44,10 +44,10 @@ def test_fit_X(X_y_generator, result_generator):
 def test_fit_G(X_y_generator, result_generator):
     knn_c = KNNConstructor(k=5, sep_comp=False)
     G = knn_c.fit_transform(X_y_generator[0], X_y_generator[1])
-    SPC = StochasticParticleCompetition(random_state=42, n_iters=3)
+    SPC = StochasticParticleCompetition(random_state=42, n_iter=3)
     SPC.fit(G=G)
 
     np.testing.assert_equal(result_generator,
-                            np.array(SPC.clusters,
+                            np.array(SPC.clusters_,
                                      dtype='float32')
                             )

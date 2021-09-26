@@ -5,6 +5,8 @@ from tqdm import tqdm
 from sknet.utils import NetworkMetricsHandler
 from sknet.utils import LowLevelModelsHandler
 
+from sknet.network_construction import KNNConstructor
+
 
 class HighLevelClassifier():
     """
@@ -15,34 +17,34 @@ class HighLevelClassifier():
 
     Parameters
     ----------
-    constructor : BaseConstructor inhrerited class
-        A constructor class to transform the tabular data into a
-        network
-    low_level : str
+    low_level : str, optional(default='random_forest')
         The low-level model to be used. See available options on the
         low_level_models_handler documentation
-    p : float
+    p : float, optional(default=0.5)
         The weight to be used on the ponderation between the
         low-level and the high-level model predictions. The formula
         is:
         ``(1 - p) * low_level + p * high_level``
         This number should be less or equal than one
-    alphas : list of floats
+    alphas : list of floats, optional(default=[0.5, .5])
         The weight to be used on each high-level metric for the
         classification. This list should sum up to one.
-    metrics: list of str
+    metrics: list of str, optional(default=['clustering_coefficient',
+                                            'assortativity'])
         Which complex networks metrics to use to generate the high-level
         prediction. See available options on the network_metrics_handler
-    low_level_parameters : dict, default={}
+    low_level_parameters : dict, optional(default={})
         Parameters to be set on the low-level classifier
 
     Attributes
     ----------
-    low_level_pred : {ndarray, pandas series}, shape (n_samples, n_classes)
+    constructor_ : BaseConstructor inhrerited class
+        The transformer used to transform the tabular data into network
+    low_level_pred_ : {ndarray, pandas series}, shape (n_samples, n_classes)
         The probability of each class from the low-level prediction
-    high_level_pred : {ndarray, pandas series}, shape (n_samples, n_classes)
+    high_level_pred_ : {ndarray, pandas series}, shape (n_samples, n_classes)
         The probability of each class from the high-level prediction
-    original_constructor : NetworkX Network
+    original_constructor_ : NetworkX Network
         The constructed network on the fit of the model
 
     Examples
@@ -54,8 +56,8 @@ class HighLevelClassifier():
     >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=0.33)
     >>> knn_c = KNNConstructor(k=5)
-    >>> classifier = HighLevelClassifier(knn_c, t=5)
-    >>> classifier.fit(X_train, y_train)
+    >>> classifier = HighLevelClassifier(t=5)
+    >>> classifier.fit(X_train, y_train, constructor=knn_c)
     >>> pred = classifier.predict(X_test)
 
     References
@@ -67,35 +69,31 @@ class HighLevelClassifier():
     Networks. 10.1007/978-3-319-17290-3.
 
     """
+    _estimator_type = 'classifier'
 
-    def __init__(self, constructor, low_level,
-                 p, alphas, metrics,
+    def __init__(self, low_level='random_forest',
+                 p=0.5, alphas=[0.5, 0.5],
+                 metrics=['clustering_coefficient', 'assortativity'],
                  low_level_parameters={}):
         self.p = p
         self.alphas = alphas
         self.metrics = metrics
         self.low_level = low_level
-        self.constructor = constructor
-        self.metrics_handler = NetworkMetricsHandler()
-        self.low_level_handler = LowLevelModelsHandler()
+        self.low_level_parameters = low_level_parameters
+        self.metrics = metrics
 
-        self.low_level_model = self.low_level_handler.get_model(
-            self.low_level, low_level_parameters
-        )
-        self.metric_func = []
-        self.default_values = []
-        for metric in metrics:
-            self.metric_func.append(self.metrics_handler.get_metric(metric))
-            self.default_values.append(self.metrics_handler.get_default_value(
-                metric)
-            )
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
 
-        assert self.p <= 1
+    def get_params(self, deep=True):
+        return {'p': self.p, 'alphas': self.alphas, 'metrics': self.metrics,
+                'low_level': self.low_level,
+                'low_level_parameters': self.low_level_parameters,
+                'self.metrics': self.metrics}
 
-        if np.sum(self.alphas) != 1:
-            raise ValueError('Alphas should sum to one')
-
-    def fit(self, X, y, G=None):
+    def fit(self, X, y, G=None, constructor=KNNConstructor(5)):
         """Fit the classifier by fitting the low-level model and
         creating the high-level classification network
 
@@ -110,20 +108,48 @@ class HighLevelClassifier():
             If the graph was already generated, then this parameter will
             make as so the transformer is not called. Notice that each class
             should be formed of only one class
+        constructor : BaseConstructor inhrerited class, optional(default=
+        KNNConstructor(5))
+            A constructor class to transform the tabular data into a
+            network
 
         """
-        # Fits the transformer to generate the network
+        self.constructor_ = constructor
+
+        # Basic configuration
+        self.metrics_handler = NetworkMetricsHandler()
+        self.low_level_handler = LowLevelModelsHandler()
+
+        self.low_level_model = self.low_level_handler.get_model(
+            self.low_level, self.low_level_parameters
+        )
+        self.metric_func = []
+        self.default_values = []
+        for metric in self.metrics:
+            self.metric_func.append(self.metrics_handler.get_metric(metric))
+            self.default_values.append(self.metrics_handler.get_default_value(
+                metric)
+            )
+
+        assert self.p <= 1
+
+        if np.sum(self.alphas) != 1:
+            raise ValueError('Alphas should sum to one')
+
+        # Fits the constructor to generate the network
         if G is not None:
-            self.G = G
+            self.G_ = G
         else:
-            self.constructor.set_sep_comp(True)
-            self.G = self.constructor.fit_transform(X, y)
+            self.constructor_.set_sep_comp(True)
+            self.G_ = self.constructor_.fit_transform(X, y)
 
         # Fits the low level model
         self.low_level_model.fit(X, y)
 
         self.X = X
         self.y = y
+
+        return self
 
     def predict_proba(self, X_test):
         """Predicts the probability, for each test sample
@@ -136,15 +162,15 @@ class HighLevelClassifier():
 
         """
         # Gets the low level predictions
-        self.low_level_pred = self.low_level_model.predict_proba(X_test)
+        self.low_level_pred_ = self.low_level_model.predict_proba(X_test)
 
         classes = np.unique(self.y)
-        self.high_level_pred = np.zeros((len(X_test), len(classes)))
-        total_training_nodes = len(self.G.nodes)
+        self.high_level_pred_ = np.zeros((len(X_test), len(classes)))
+        total_training_nodes = len(self.G_.nodes)
         class_proportions = np.zeros((len(classes)))
 
         # We need to keep the original constructor
-        self.original_constructor = copy.deepcopy(self.constructor)
+        self.original_constructor = copy.deepcopy(self.constructor_)
 
         for i, class_ in enumerate(classes):
             label_ind = np.where(self.y == class_)
@@ -164,8 +190,8 @@ class HighLevelClassifier():
 
                 # Adds the node to the network on the component of the class
                 singleton = False
-                self.constructor.add_nodes([x], [class_])
-                new_G = self.constructor.get_network()
+                self.constructor_.add_nodes([x], [class_])
+                new_G = self.constructor_.get_network()
                 new_G_sub = self._get_subgraph(new_G, class_)
 
                 # Verifies if the added node has a neighbor
@@ -186,21 +212,24 @@ class HighLevelClassifier():
                         delta_G[idx][class_id] = self.default_values[idx]
 
                 # Return the original constructor
-                self.constructor = copy.deepcopy(self.original_constructor)
+                self.constructor_ = copy.deepcopy(self.original_constructor)
 
             delta_G / delta_G.sum(axis=1)[:, np.newaxis]
             f = delta_G * class_proportions
 
             for k, f_ in enumerate(f):
 
-                self.high_level_pred[i] = self.alphas[k] * (1 - f_)
+                self.high_level_pred_[i] = self.alphas[k] * (1 - f_)
 
         # Normalize the high_level_pred
-        self.high_level_pred = self.high_level_pred / self.high_level_pred.sum(
-            axis=1)[:, np.newaxis]
+        self.high_level_pred_ = (
+            self.high_level_pred_ / self.high_level_pred_.sum(
+                axis=1)[:, np.newaxis]
+            )
 
         final_pred = (
-            (1 - self.p) * self.low_level_pred + self.p * self.high_level_pred
+            (1 -
+                self.p) * self.low_level_pred_ + self.p * self.high_level_pred_
         )
 
         return final_pred

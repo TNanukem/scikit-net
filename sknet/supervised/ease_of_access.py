@@ -6,6 +6,8 @@ from scipy.stats import mode
 from abc import ABCMeta, abstractmethod
 from sklearn.neighbors import DistanceMetric
 
+from sknet.network_construction import KNNConstructor
+
 
 class EaseOfAccess(metaclass=ABCMeta):
     """
@@ -13,9 +15,6 @@ class EaseOfAccess(metaclass=ABCMeta):
 
     Parameters
     ----------
-    transformer : BaseConstructor inhrerited class
-        A transformer class to transform the tabular data into a
-        network
     epsilon : float, default=0.2
         The perturbance to be applied to the weights matrix after the
         insertion of the test data
@@ -28,7 +27,7 @@ class EaseOfAccess(metaclass=ABCMeta):
 
     Attributes
     ----------
-    transformer : BaseConstructor inhrerited class
+    constructor_ : BaseConstructor inhrerited class
         The transformer used to transform the tabular data into network
     epsilon : float
         The disturbance applied to the weights matrix
@@ -36,13 +35,13 @@ class EaseOfAccess(metaclass=ABCMeta):
         Number of points used on the convergence probabilities
     method : str
         Method used to compute the limiting probabilities of the Markov chain
-    G : NetworkX network
+    G_ : NetworkX network
         The network generated from the tabular data
-    W : {array-like, pandas dataframe} of shape (n_samples, n_samples)
+    W_ : {array-like, pandas dataframe} of shape (n_samples, n_samples)
         The adjacency matrix of the network G
-    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
+    X_ : {array-like, pandas dataframe} of shape (n_samples, n_features)
         The used tabular data features
-    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes)
+    y_ : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes)
         The classes of each node
 
     Notes
@@ -60,13 +59,20 @@ class EaseOfAccess(metaclass=ABCMeta):
 
     """
 
-    def __init__(self, transformer, epsilon=0.2, t=3, method='eigenvalue'):
-        self.transformer = transformer
+    def __init__(self, epsilon=0.2, t=3, method='eigenvalue'):
         self.epsilon = epsilon
         self.t = t
         self.method = method
 
-    def fit(self, X, y, G=None):
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
+
+    def get_params(self, deep=True):
+        return {'epsilon': self.epsilon, 't': self.t, 'method': self.method}
+
+    def fit(self, X, y, G=None, constructor=KNNConstructor(5, sep_comp=True)):
         """
         Fit the model, internalizing the graph that should be used
 
@@ -80,6 +86,10 @@ class EaseOfAccess(metaclass=ABCMeta):
         G : NetworkX Graph, default=None
             If the graph was already generated, then this parameter will
             make as so the transformer is not called
+        constructor : BaseConstructor inhrerited class, optional(default=
+        KNNConstructor(5, sep_comp=True))
+            A constructor class to transform the tabular data into a
+            network
 
         Notes
         -----
@@ -92,23 +102,25 @@ class EaseOfAccess(metaclass=ABCMeta):
         created network to the method, be mindful of that
 
         """
-
+        self.constructor_ = constructor
         if G is None:
             # Generates the graph from X and y
-            self.transformer.set_sep_comp(False)
-            self.G = self.transformer.fit_transform(X, y)
+            self.constructor_.set_sep_comp(False)
+            self.G_ = self.constructor_.fit_transform(X, y)
         else:
-            self.G = G
+            self.G_ = G
 
         # Transforms X into undirected
-        if nx.is_directed(self.G):
-            self.G = self.G.to_undirected()
+        if nx.is_directed(self.G_):
+            self.G_ = self.G_.to_undirected()
 
         # Generates W matrix
-        self.W = nx.to_numpy_array(self.G)
+        self.W_ = nx.to_numpy_array(self.G_)
 
-        self.X = X
-        self.y = y
+        self.X_ = X
+        self.y_ = y
+
+        return self
 
     def predict(self, X):
         """
@@ -130,7 +142,7 @@ class EaseOfAccess(metaclass=ABCMeta):
         for x in X:
 
             # For each instance, calculates the s vector
-            s = [dist.pairwise((x, x_t))[1][0] for x_t in self.X]
+            s = [dist.pairwise((x, x_t))[1][0] for x_t in self.X_]
             L = len(s)
 
             # Generates the S_tilda vector
@@ -140,7 +152,7 @@ class EaseOfAccess(metaclass=ABCMeta):
                 S_tilda[i] = [s[i]] * L
 
             # Alter the weight matrix
-            w_tilda = self.W + self.epsilon * S_tilda
+            w_tilda = self.W_ + self.epsilon * S_tilda
 
             # Generates probability matrix
             norm_factor = np.sum(w_tilda, axis=1)
@@ -153,13 +165,13 @@ class EaseOfAccess(metaclass=ABCMeta):
             # Associates each class with the probabilities
             res = pd.DataFrame()
             res['prob'] = self.P_inf
-            res['y'] = self.y
+            res['y'] = self.y_
             res.sort_values('prob', inplace=True, ascending=False)
 
             # Gets the t classes from P_inf and set to the majority
-            self.tau = res.iloc[:self.t]
+            self.tau_ = res.iloc[:self.t]
 
-            predictions.append(self._aggregation_method(self.tau))
+            predictions.append(self._aggregation_method(self.tau_))
 
         return predictions
 
@@ -168,7 +180,7 @@ class EaseOfAccess(metaclass=ABCMeta):
         pass
 
     def _get_distance_metric(self):
-        metric = self.transformer.metric
+        metric = self.constructor_.metric
 
         if type(metric) is str:
             return DistanceMetric.get_metric(metric)
@@ -205,9 +217,6 @@ class EaseOfAccessClassifier(EaseOfAccess):
 
     Parameters
     ----------
-    transformer : BaseConstructor inhrerited class
-        A transformer class to transform the tabular data into a
-        network
     epsilon : float, default=0.2
         The perturbance to be applied to the weights matrix after the
         insertion of the test data
@@ -220,21 +229,21 @@ class EaseOfAccessClassifier(EaseOfAccess):
 
     Attributes
     ----------
-    transformer : BaseConstructor inhrerited class
-        The transformer used to transform the tabular data into network
+    constructor_ : BaseConstructor inhrerited class
+        The constructor used to transform the tabular data into network
     epsilon : float
         The disturbance applied to the weights matrix
     t : int
         Number of points used on the convergence probabilities
     method : str
         Method used to compute the limiting probabilities of the Markov chain
-    G : NetworkX network
+    G_ : NetworkX network
         The network generated from the tabular data
-    W : {array-like, pandas dataframe} of shape (n_samples, n_samples)
+    W_ : {array-like, pandas dataframe} of shape (n_samples, n_samples)
         The adjacency matrix of the network G
-    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
+    X_ : {array-like, pandas dataframe} of shape (n_samples, n_features)
         The used tabular data features
-    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes)
+    y_ : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes)
         The classes of each node
 
     Examples
@@ -246,8 +255,8 @@ class EaseOfAccessClassifier(EaseOfAccess):
     >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=0.33)
     >>> knn_c = KNNConstructor(k=5)
-    >>> classifier = EaseOfAccessClassifier(knn_c, t=5)
-    >>> classifier.fit(X_train, y_train)
+    >>> classifier = EaseOfAccessClassifier(t=5)
+    >>> classifier.fit(X_train, y_train, constructor=knn_c)
     >>> ease = classifier.predict(X_test)
     >>> accuracy_score(y_test, ease)
     0.92
@@ -266,8 +275,10 @@ class EaseOfAccessClassifier(EaseOfAccess):
 
     """
 
-    def __init__(self, transformer, epsilon=0.2, t=3, method='eigenvalue'):
-        super().__init__(transformer, epsilon, t, method)
+    _estimator_type = 'classifier'
+
+    def __init__(self, epsilon=0.2, t=3, method='eigenvalue'):
+        super().__init__(epsilon, t, method)
 
     def _aggregation_method(self, tau):
         return mode(tau['y'])[0][0]
@@ -282,9 +293,6 @@ class EaseOfAccessRegressor(EaseOfAccess):
 
     Parameters
     ----------
-    transformer : BaseConstructor inhrerited class
-        A transformer class to transform the tabular data into a
-        network
     epsilon : float, default=0.2
         The perturbance to be applied to the weights matrix after the
         insertion of the test data
@@ -297,21 +305,21 @@ class EaseOfAccessRegressor(EaseOfAccess):
 
     Attributes
     ----------
-    transformer : BaseConstructor inhrerited class
-        The transformer used to transform the tabular data into network
+    constructor_ : BaseConstructor inhrerited class
+        The constructor used to transform the tabular data into network
     epsilon : float
         The disturbance applied to the weights matrix
     t : int
         Number of points used on the convergence probabilities
     method : str
         Method used to compute the limiting probabilities of the Markov chain
-    G : NetworkX network
+    G_ : NetworkX network
         The network generated from the tabular data
-    W : {array-like, pandas dataframe} of shape (n_samples, n_samples)
+    W_ : {array-like, pandas dataframe} of shape (n_samples, n_samples)
         The adjacency matrix of the network G
-    X : {array-like, pandas dataframe} of shape (n_samples, n_features)
+    X_ : {array-like, pandas dataframe} of shape (n_samples, n_features)
         The used tabular data features
-    y : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes)
+    y_ : {ndarray, pandas series}, shape (n_samples,) or (n_samples, n_classes)
         The classes of each node
 
     Examples
@@ -323,8 +331,8 @@ class EaseOfAccessRegressor(EaseOfAccess):
     >>> X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                             test_size=0.33)
     >>> knn_c = KNNConstructor(k=5)
-    >>> reg = EaseOfAccessRegressor(knn_c, t=5)
-    >>> reg.fit(X_train, y_train)
+    >>> reg = EaseOfAccessRegressor(t=5)
+    >>> reg.fit(X_train, y_train, constructor=knn_c)
     >>> ease = reg.predict(X_test)
 
     Notes
@@ -341,8 +349,10 @@ class EaseOfAccessRegressor(EaseOfAccess):
 
     """
 
-    def __init__(self, transformer, epsilon=0.2, t=3, method='eigenvalue'):
-        super().__init__(transformer, epsilon, t, method)
+    _estimator_type = 'regressor'
+
+    def __init__(self, epsilon=0.2, t=3, method='eigenvalue'):
+        super().__init__(epsilon, t, method)
 
     def _aggregation_method(self, tau):
         return tau['y'].mean()

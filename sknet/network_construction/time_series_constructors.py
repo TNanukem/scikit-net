@@ -30,27 +30,29 @@ class TimeSeriesBaseConstructor(metaclass=ABCMeta):
         if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
             X = np.array(X)
 
-        self.X = None
+        self.X_ = None
 
         self.add_nodes(X)
+
+        return self
 
     def transform(self):
         """Returns the networkX graph after the constructor is fitted
 
         Returns
         -----
-        G : NetworkX graph
+        G_ : NetworkX graph
             The network version of the inserted time series data
         """
         try:
-            return self.G
+            return self.G_
         except AttributeError:
             raise Exception("Transformer is not fitted")
 
     def get_network(self):
         """Retrieves the network generated in the constructor class
         """
-        return self.G
+        return self.G_
 
     def fit_transform(self, X, y=None):
         """Fit the constructor creating the NetworkX graph and returns the graph
@@ -63,15 +65,20 @@ class TimeSeriesBaseConstructor(metaclass=ABCMeta):
 
         Returns
         -------
-        G : NetworkX graph
+        G_ : NetworkX graph
             The network version of the inserted time series data
         """
         self.fit(X, y)
-        return self.G
+        return self.G_
 
     @abstractmethod
     def add_nodes(self, X, y=None):
         pass
+
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
 
 
 class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
@@ -101,7 +108,7 @@ class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
     >>> L = 10
     >>> constructor = UnivariateCorrelationConstructor(r, L)
     >>> constructor.fit(X)
-    >>> G = constructor.transform()
+    >>> G_ = constructor.transform()
 
     References
     ----------
@@ -112,10 +119,13 @@ class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
     analysis. Physica A 387, 1381–1386 (2008)
 
     """
-    def __init__(self, r, L):
+    def __init__(self, r=0.5, L=10):
         self.r = r
         self.L = L
-        self.X = None
+        self.X_ = None
+
+    def get_params(self, deep=True):
+        return {"r": self.r, 'L': self.L}
 
     def add_nodes(self, X, y=None):
         """Add nodes to an existing network inside a fitted transformer
@@ -137,8 +147,8 @@ class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
                    MultivariateCorrelationConstructor"""
             )
 
-        if self.X is not None:
-            X = np.vstack((self.X, X))
+        if self.X_ is not None:
+            X = np.vstack((self.X_, X))
 
         # Create the segments of size L
         segments = []
@@ -160,9 +170,9 @@ class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         C[C < self.r] = 0
         C[C >= self.r] = 1
 
-        self.G = nx.from_numpy_array(C)
+        self.G_ = nx.from_numpy_array(C)
 
-        self.X = X
+        self.X_ = X
 
 
 class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
@@ -179,7 +189,7 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
 
     Attributes
     ----------
-    G : NetworkX graph
+    G_ : NetworkX graph
         The network version of the inserted time series data
 
     Examples
@@ -189,7 +199,7 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
     >>> L = 10
     >>> constructor = UnivariateCorrelationConstructor(r, L)
     >>> constructor.fit(X)
-    >>> G = constructor.transform()
+    >>> G_ = constructor.transform()
 
     References
     ----------
@@ -200,8 +210,11 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
     analysis. Physica A 387, 1381–1386 (2008)
 
     """
-    def __init__(self, r):
+    def __init__(self, r=0.5):
         self.r = r
+
+    def get_params(self, deep=True):
+        return {"r": self.r}
 
     def add_nodes(self, X, y=None):
         """Add nodes to an existing network inside a fitted transformer
@@ -223,8 +236,8 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
                    UnivariateCorrelationConstructor"""
             )
 
-        if self.X is not None:
-            X = np.vstack((self.X, X))
+        if self.X_ is not None:
+            X = np.vstack((self.X_, X))
 
         C = np.zeros((X.shape[1], X.shape[1]))
 
@@ -238,6 +251,6 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         C[C < self.r] = 0
         C[C >= self.r] = 1
 
-        self.G = nx.from_numpy_array(C)
+        self.G_ = nx.from_numpy_array(C)
 
-        self.X = X
+        self.X_ = X

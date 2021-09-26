@@ -22,8 +22,8 @@ class BaseConstructor(metaclass=ABCMeta):
         self.metric = metric
         self.leaf_size = leaf_size
         self.sep_comp = sep_comp
-        self.X = None
-        self.y = None
+        self.X_ = None
+        self.y_ = None
 
     @abstractmethod
     def add_nodes(self, X, y=None):
@@ -72,16 +72,18 @@ class BaseConstructor(metaclass=ABCMeta):
 
         """
 
-        self.G = nx.Graph()
-        self.node_count = 0
+        self.G_ = nx.Graph()
+        self.node_count_ = 0
         if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
             X = np.array(X)
 
-        self.X = X
-        self.y = y
+        self.X_ = X
+        self.y_ = y
         self.fitting = True
-        self.add_nodes(self.X, self.y)
+        self.add_nodes(self.X_, self.y_)
         self.fitting = False
+
+        return self
 
     def transform(self):
         """Returns the networkX graph after the constructor is fitted
@@ -92,7 +94,7 @@ class BaseConstructor(metaclass=ABCMeta):
             The network version of the inserted tabular data
         """
         try:
-            return self.G
+            return self.G_
         except AttributeError:
             raise Exception("Transformer is not fitted")
 
@@ -119,15 +121,25 @@ class BaseConstructor(metaclass=ABCMeta):
 
         """
         self.fit(X, y)
-        return self.G
+        return self.G_
 
     def get_network(self):
         """Retrieves the network generated in the constructor class
         """
-        return self.G
+        return self.G_
 
     def set_sep_comp(self, sep_comp):
         self.sep_comp = sep_comp
+
+    def set_params(self, **parameters):
+        for parameter, value in parameters.items():
+            setattr(self, parameter, value)
+        return self
+
+    def get_params(self, deep=True):
+        return {"k": self.k, "epsilon": self.epsilon,
+                "metric": self.metric, "leaf_size": self.leaf_size,
+                "sep_comp": self.sep_comp}
 
 
 class KNNConstructor(BaseConstructor):
@@ -215,17 +227,17 @@ class KNNConstructor(BaseConstructor):
             X = np.array(X)
 
         # Each class will be a separated component
-        if self.y is None:
+        if self.y_ is None:
             classes = [0]
         else:
-            classes = np.unique(self.y)
+            classes = np.unique(self.y_)
 
         for class_ in classes:
 
-            if self.y is None:
-                nodes = [node for node in range(self.node_count, len(X) + self.node_count)]  # noqa: E501
+            if self.y_ is None:
+                nodes = [node for node in range(self.node_count_, len(X) + self.node_count_)]  # noqa: E501
                 X_ = X
-                self.tree = _tree_selector(self.X, self.leaf_size)
+                self.tree_ = _tree_selector(self.X_, self.leaf_size)
                 label_ind = [i for i in range(len(X))]
 
             else:
@@ -237,43 +249,43 @@ class KNNConstructor(BaseConstructor):
 
                     # Calculating the distances for guys on the same component
                     if self.fitting:
-                        total_y = self.y
-                        total_X = self.X
+                        total_y = self.y_
+                        total_X = self.X_
                     else:
-                        total_y = np.append(self.y, y)
-                        total_X = np.vstack((self.X, X))
+                        total_y = np.append(self.y_, y)
+                        total_X = np.vstack((self.X_, X))
                     label_ind = np.where(total_y == class_)
 
                     X_ = np.take(total_X, label_ind, axis=0)[0]
-                    nodes = [(node, {'class': class_}) for node in range(self.node_count, len(X_component) + self.node_count)]  # noqa: E501
+                    nodes = [(node, {'class': class_}) for node in range(self.node_count_, len(X_component) + self.node_count_)]  # noqa: E501
 
                     label_ind = label_ind[0].tolist()
 
                 else:
                     X_ = X
                     label_ind = [i for i in range(len(X))]
-                    nodes = [(node, {'class': y[node - self.node_count]}) for node in range(self.node_count, len(X_) + self.node_count)]  # noqa: E501
+                    nodes = [(node, {'class': y[node - self.node_count_]}) for node in range(self.node_count_, len(X_) + self.node_count_)]  # noqa: E501
 
-                self.tree = _tree_selector(X_, self.leaf_size)
+                self.tree_ = _tree_selector(X_, self.leaf_size)
 
-            neighbors = [self.tree.query(x.reshape(1, -1), k=self.k+1, return_distance=True) for x in X_]  # noqa: E501
+            neighbors = [self.tree_.query(x.reshape(1, -1), k=self.k+1, return_distance=True) for x in X_]  # noqa: E501
             distances_aux = [neigh[0] for neigh in neighbors]
             indexes_aux = [neigh[1] for neigh in neighbors]
             indexes = [node[0] for node in indexes_aux]
             distances = [node[0] for node in distances_aux]
             edges = [(label_ind[node[0]], label_ind[node[j]], distances[i][j]) for i, node in enumerate(indexes) for j in range(1, self.k+1)]  # noqa: E501
 
-            self.G.add_nodes_from(nodes)
-            self.G.add_weighted_edges_from(edges)
-            self.node_count += len(nodes)
+            self.G_.add_nodes_from(nodes)
+            self.G_.add_weighted_edges_from(edges)
+            self.node_count_ += len(nodes)
 
             if self.sep_comp is False:
                 break
 
-        if not np.array_equal(self.X, X):
-            self.X = np.vstack((self.X, X))
-            if self.y is not None:
-                self.y = np.append(self.y, y)
+        if not np.array_equal(self.X_, X):
+            self.X_ = np.vstack((self.X_, X))
+            if self.y_ is not None:
+                self.y_ = np.append(self.y_, y)
 
 
 class EpsilonRadiusConstructor(BaseConstructor):
@@ -328,7 +340,7 @@ class EpsilonRadiusConstructor(BaseConstructor):
     Complex Networks. 10.1007/978-3-319-17290-3.
 
     """
-    def __init__(self, epsilon, metric='minkowski', leaf_size=40,
+    def __init__(self, epsilon=0.1, metric='minkowski', leaf_size=40,
                  sep_comp=True):
         super().__init__(None, epsilon, metric, leaf_size, sep_comp)
 
@@ -361,16 +373,16 @@ class EpsilonRadiusConstructor(BaseConstructor):
             X = np.array(X)
 
         # Each class will be a separated component
-        if self.y is None:
+        if self.y_ is None:
             classes = [0]
         else:
-            classes = np.unique(self.y)
+            classes = np.unique(self.y_)
 
         for class_ in classes:
-            if self.y is None:
-                nodes = [node for node in range(self.node_count, len(X) + self.node_count)]  # noqa: E501
+            if self.y_ is None:
+                nodes = [node for node in range(self.node_count_, len(X) + self.node_count_)]  # noqa: E501
                 X_ = X
-                self.tree = _tree_selector(self.X, self.leaf_size)
+                self.tree_ = _tree_selector(self.X_, self.leaf_size)
                 label_ind = [i for i in range(len(X))]
 
             else:
@@ -382,26 +394,26 @@ class EpsilonRadiusConstructor(BaseConstructor):
 
                     # Calculating the distances for guys on the same component
                     if self.fitting:
-                        total_y = self.y
-                        total_X = self.X
+                        total_y = self.y_
+                        total_X = self.X_
                     else:
-                        total_y = np.append(self.y, y)
-                        total_X = np.vstack((self.X, X))
+                        total_y = np.append(self.y_, y)
+                        total_X = np.vstack((self.X_, X))
                     label_ind = np.where(total_y == class_)
 
                     X_ = np.take(total_X, label_ind, axis=0)[0]
-                    nodes = [(node, {'class': class_}) for node in range(self.node_count, len(X_component) + self.node_count)]  # noqa: E501
+                    nodes = [(node, {'class': class_}) for node in range(self.node_count_, len(X_component) + self.node_count_)]  # noqa: E501
 
                     label_ind = label_ind[0].tolist()
 
                 else:
                     X_ = X
                     label_ind = [i for i in range(len(X))]
-                    nodes = [(node, {'class': y[node - self.node_count]}) for node in range(self.node_count, len(X_) + self.node_count)]  # noqa: E501
+                    nodes = [(node, {'class': y[node - self.node_count_]}) for node in range(self.node_count_, len(X_) + self.node_count_)]  # noqa: E501
 
-                self.tree = _tree_selector(X_, self.leaf_size)
+                self.tree_ = _tree_selector(X_, self.leaf_size)
 
-            neighbors = [self.tree.query_radius(x.reshape(1, -1), r=self.epsilon, return_distance=True, sort_results=True) for x in X_]  # noqa: E501
+            neighbors = [self.tree_.query_radius(x.reshape(1, -1), r=self.epsilon, return_distance=True, sort_results=True) for x in X_]  # noqa: E501
 
             indexes_aux = [neigh[0] for neigh in neighbors]
             distances_aux = [neigh[1] for neigh in neighbors]
@@ -410,20 +422,20 @@ class EpsilonRadiusConstructor(BaseConstructor):
 
             edges = [(label_ind[node[0]], label_ind[node[j]], distances[i][j]) for i, node in enumerate(indexes) for j in range(1, len(node))]  # noqa: E501
 
-            self.G.add_nodes_from(nodes)
-            self.G.add_weighted_edges_from(edges)
+            self.G_.add_nodes_from(nodes)
+            self.G_.add_weighted_edges_from(edges)
 
             # Removing self-loops
-            self.G.remove_edges_from(nx.selfloop_edges(self.G))
-            self.node_count += len(nodes) + 1
+            self.G_.remove_edges_from(nx.selfloop_edges(self.G_))
+            self.node_count_ += len(nodes) + 1
 
             if self.sep_comp is False:
                 break
 
-        if not np.array_equal(self.X, X):
-            self.X = np.vstack((self.X, X))
-            if self.y is not None:
-                self.y = np.vstack((self.y, y))
+        if not np.array_equal(self.X_, X):
+            self.X_ = np.vstack((self.X_, X))
+            if self.y_ is not None:
+                self.y_ = np.vstack((self.y_, y))
 
 
 class KNNEpislonRadiusConstructor(BaseConstructor):
@@ -525,17 +537,17 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
             X = np.array(X)
 
         # Each class will be a separated component
-        if self.y is None:
+        if self.y_ is None:
             classes = [0]
         else:
-            classes = np.unique(self.y)
+            classes = np.unique(self.y_)
 
         for class_ in classes:
 
-            if self.y is None:
-                nodes = [node for node in range(self.node_count, len(X) + self.node_count)]  # noqa: E501
+            if self.y_ is None:
+                nodes = [node for node in range(self.node_count_, len(X) + self.node_count_)]  # noqa: E501
                 X_ = X
-                self.tree = _tree_selector(self.X, self.leaf_size)
+                self.tree_ = _tree_selector(self.X_, self.leaf_size)
                 label_ind = [i for i in range(len(X))]
 
             else:
@@ -547,27 +559,27 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
 
                     # Calculating the distances for guys on the same component
                     if self.fitting:
-                        total_y = self.y
-                        total_X = self.X
+                        total_y = self.y_
+                        total_X = self.X_
                     else:
-                        total_y = np.append(self.y, y)
-                        total_X = np.vstack((self.X, X))
+                        total_y = np.append(self.y_, y)
+                        total_X = np.vstack((self.X_, X))
                     label_ind = np.where(total_y == class_)
 
                     X_ = np.take(total_X, label_ind, axis=0)[0]
-                    nodes = [(node, {'class': class_}) for node in range(self.node_count, len(X_component) + self.node_count)]  # noqa: E501
+                    nodes = [(node, {'class': class_}) for node in range(self.node_count_, len(X_component) + self.node_count_)]  # noqa: E501
 
                     label_ind = label_ind[0].tolist()
 
                 else:
                     X_ = X
                     label_ind = [i for i in range(len(X))]
-                    nodes = [(node, {'class': y[node - self.node_count]}) for node in range(self.node_count, len(X_) + self.node_count)]  # noqa: E501
+                    nodes = [(node, {'class': y[node - self.node_count_]}) for node in range(self.node_count_, len(X_) + self.node_count_)]  # noqa: E501
 
-                self.tree = _tree_selector(X_, self.leaf_size)
+                self.tree_ = _tree_selector(X_, self.leaf_size)
 
-            radius_neighbors = [self.tree.query_radius(x.reshape(1, -1), r=self.epsilon, return_distance=True, sort_results=True) for x in X_]  # noqa: E501
-            k_neighbors = [self.tree.query(x.reshape(1, -1), k=self.k+1, return_distance=True) for x in X_]  # noqa: E501
+            radius_neighbors = [self.tree_.query_radius(x.reshape(1, -1), r=self.epsilon, return_distance=True, sort_results=True) for x in X_]  # noqa: E501
+            k_neighbors = [self.tree_.query(x.reshape(1, -1), k=self.k+1, return_distance=True) for x in X_]  # noqa: E501
 
             # Auxiliar lists
             indexes_radius_aux = [neigh[0] for neigh in radius_neighbors]
@@ -593,22 +605,22 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
             edges_radius = [(label_ind[node[0]], label_ind[node[j]], final_radius_distances[i][j]) for i, node in enumerate(final_radius) for j in range(1, len(node))]  # noqa: E501
             edges_k = [(label_ind[node[0]], label_ind[node[j]], final_k_distances[i][j]) for i, node in enumerate(final_k) for j in range(1, self.k+1)]  # noqa: E501
 
-            self.G = nx.Graph()
-            self.G.add_nodes_from(nodes)
-            self.G.add_weighted_edges_from(edges_radius)
-            self.G.add_weighted_edges_from(edges_k)
+            self.G_ = nx.Graph()
+            self.G_.add_nodes_from(nodes)
+            self.G_.add_weighted_edges_from(edges_radius)
+            self.G_.add_weighted_edges_from(edges_k)
 
             # Removing self-loops
-            self.G.remove_edges_from(nx.selfloop_edges(self.G))
-            self.node_count += len(nodes) + 1
+            self.G_.remove_edges_from(nx.selfloop_edges(self.G_))
+            self.node_count_ += len(nodes) + 1
 
             if self.sep_comp is False:
                 break
 
-        if not np.array_equal(self.X, X):
-            self.X = np.vstack((self.X, X))
-            if self.y is not None:
-                self.y = np.vstack((self.y, y))
+        if not np.array_equal(self.X_, X):
+            self.X_ = np.vstack((self.X_, X))
+            if self.y_ is not None:
+                self.y_ = np.vstack((self.y_, y))
 
 
 def _tree_selector(X, leaf_size=40, metric='minkowski'):
