@@ -23,10 +23,10 @@ def X_y_generator():
 def module_generator(X_y_generator):
     knn = KNNConstructor(k=3)
     classifier = HighLevelClassifier(
-        knn, 'random_forest', 0.5, [0.5, 0.5],
+        'random_forest', 0.5, [0.5, 0.5],
         ['clustering_coefficient', 'assortativity']
     )
-    classifier.fit(X_y_generator[0], X_y_generator[1])
+    classifier.fit(X_y_generator[0], X_y_generator[1], constructor=knn)
 
     return classifier
 

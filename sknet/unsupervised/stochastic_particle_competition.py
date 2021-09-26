@@ -1,6 +1,8 @@
 import numpy as np
 import networkx as nx
 
+from sknet.network_construction import KNNConstructor
+
 
 class StochasticParticleCompetition():
     """
@@ -44,9 +46,9 @@ class StochasticParticleCompetition():
     >>> from sknet.unsupervised import StochasticParticleCompetition
     >>> X, y = load_iris(return_X_y = True)
     >>> knn_c = KNNConstructor(k=5, sep_comp=False)
-    >>> SCP = StochasticParticleCompetition(knn_c)
-    >>> SCP.fit(X, y)
-    >>> SCP.clusters
+    >>> SCP = StochasticParticleCompetition()
+    >>> SCP.fit(X, y, constructor=knn_c)
+    >>> SCP.clusters_
     array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
        0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,
@@ -93,7 +95,8 @@ class StochasticParticleCompetition():
                 'omega_max': self.omega_max, 'omega_min': self.omega_min,
                 'n_iter': self.n_iter, 'random_state': self.random_state}
 
-    def fit(self, X=None, y=None, G=None, constructor=None):
+    def fit(self, X=None, y=None, G=None,
+            constructor=KNNConstructor(5, sep_comp=False)):
         """Fit the algorithms by using the particle competition
         to cluster the data points
 
@@ -110,7 +113,8 @@ class StochasticParticleCompetition():
             The network to have its communities detected. Can be
             None if X is not None in which case the constructor
             will be used to generate the network.
-        constructor : BaseConstructor inhrerited class, optional(default=None)
+        constructor : BaseConstructor inhrerited class, optional(
+            default=KNNConstructor(5, sep_comp=False))
             A constructor class to transform the tabular data into a
             network. It can be set to None if a complex network is directly
             passed to the ``fit`` method. Notice that you should use 'sep_com'
@@ -157,7 +161,7 @@ class StochasticParticleCompetition():
 
         convergence = False
         t = 0
-        while not convergence and t < self.n_iters:
+        while not convergence and t < self.n_iter:
 
             # Updates the movement matrices
             P_pref = self._calculate_P_pref(A, N_bar)
@@ -196,7 +200,7 @@ class StochasticParticleCompetition():
         G : NetworkX Network, optional (default=None)
             Ignored on this method
         """
-        return self.clusters
+        return self.clusters_
 
     def fit_predict(self, X=None, y=None, G=None):
         """Fit the algorithms by using the particle competition
@@ -227,7 +231,6 @@ class StochasticParticleCompetition():
 
     def _verify_convergence(self, N_bar, old_N_bar):
         diff = np.sum(np.abs(N_bar - old_N_bar))
-        print(f'Convergence: {diff}')
         return diff < self.epsilon
 
     def _create_p_rand(self, A):

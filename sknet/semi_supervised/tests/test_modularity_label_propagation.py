@@ -40,11 +40,11 @@ def result_generator():
 
 def test_fit_y(X_y_generator, result_generator):
     knn_c = KNNConstructor(k=5, sep_comp=False)
-    ML = ModularityLabelPropagation(knn_c)
-    ML.fit(X_y_generator[0], X_y_generator[1])
+    ML = ModularityLabelPropagation()
+    ML.fit(X_y_generator[0], X_y_generator[1], constructor=knn_c)
 
     np.testing.assert_equal(result_generator,
-                            np.array(ML.generated_y,
+                            np.array(ML.generated_y_,
                                      dtype='float32')
                             )
 
@@ -52,10 +52,10 @@ def test_fit_y(X_y_generator, result_generator):
 def test_fit_G(X_y_generator, result_generator):
     knn_c = KNNConstructor(k=5, sep_comp=False)
     G = knn_c.fit_transform(X_y_generator[0], X_y_generator[1])
-    ML = ModularityLabelPropagation(G)
+    ML = ModularityLabelPropagation()
     ML.fit(G=G)
 
     np.testing.assert_equal(result_generator,
-                            np.array(ML.generated_y,
+                            np.array(ML.generated_y_,
                                      dtype='float32')
                             )

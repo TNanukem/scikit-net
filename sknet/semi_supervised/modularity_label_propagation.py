@@ -1,5 +1,7 @@
 import numpy as np
 
+from sknet.network_construction import KNNConstructor
+
 
 class ModularityLabelPropagation():
     """
@@ -57,7 +59,8 @@ class ModularityLabelPropagation():
     def get_params(self, deep=True):
         return {}
 
-    def fit(self, X=None, y=None, G=None, constructor=None):
+    def fit(self, X=None, y=None, G=None,
+            constructor=KNNConstructor(5, sep_comp=False)):
         """Fit the propagator by using the modularity measure
         to propagate the labels to non-labeled examples
 
@@ -76,7 +79,8 @@ class ModularityLabelPropagation():
             will be used to generate the network. Labels must be into
             the data of each node with the 'class' key. Missing labels
             should be valued np.nan
-        constructor : BaseConstructor inhrerited class, optional(default=None)
+        constructor : BaseConstructor inhrerited class, optional(default=
+            KNNConstructor(5, sep_comp=False))
             A constructor class to transform the tabular data into a
             network. It can be set to None if a complex network is directly
             passed to the ``fit`` method. Notice that you should use 'sep_com'

@@ -23,8 +23,8 @@ def X_y_generator():
 @pytest.fixture
 def module_generator_eigen(X_y_generator):
     knn = KNNConstructor(k=3)
-    classifier = EaseOfAccessClassifier(knn, t=5)
-    classifier.fit(X_y_generator[0], X_y_generator[1])
+    classifier = EaseOfAccessClassifier(t=5)
+    classifier.fit(X_y_generator[0], X_y_generator[1], constructor=knn)
 
     return classifier
 
@@ -32,8 +32,8 @@ def module_generator_eigen(X_y_generator):
 @pytest.fixture
 def module_generator_power(X_y_generator):
     knn = KNNConstructor(k=3)
-    classifier = EaseOfAccessClassifier(knn, t=5, method='power')
-    classifier.fit(X_y_generator[0], X_y_generator[1])
+    classifier = EaseOfAccessClassifier(t=5, method='power')
+    classifier.fit(X_y_generator[0], X_y_generator[1], constructor=knn)
 
     return classifier
 
@@ -53,8 +53,8 @@ def test__stationary_distribution(class_generator):
     np.testing.assert_almost_equal(class_generator[0].P_inf,
                                    class_generator[1].P_inf)
 
-    pd.testing.assert_frame_equal(class_generator[0].tau,
-                                  class_generator[1].tau)
+    pd.testing.assert_frame_equal(class_generator[0].tau_,
+                                  class_generator[1].tau_)
 
 
 def test_predictions(class_generator):
