@@ -41,11 +41,53 @@ to be aware of the requirements for each method.
 KNN Constructor
 ^^^^^^^^^^^^^^^
 
+The KNN Constructor uses a k-Nearest Neighbors algorithm to create edges between the instances (rows) of our tabular dataset. For that
+the distance between each instance of the dataset is calculated using some distance metric, like the Euclidean Distance, and then, for each
+instance, the k closest instances are selected and edges are created between them.
+
+Notice that this methodology does not create a symmetric network since, given node ``i``, node ``j`` could be one of the k closest points to it but
+the contrary may not be true.
+
+.. image:: images/knn.png
+   :alt: KNN Constructor
+
+Also, this method does not allow for singletons to be created. If a node is too far away from the others on the generated space, it will
+create at least k edges with k other nodes.
+
+The main drawback of this methodology is that, for dense regions where there are too many nodes close to each other, the degree of each node
+will be underestimated.
+
 Epsilon-Radius Constructor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The Epsilon-Radius constructor, for each node (row) of the dataset, connects it to all nodes that are inside a circle of radius epsilon.  For that
+the distance between each instance of the dataset is calculated using some distance metric, like the Euclidean Distance.
+
+.. image:: images/epsilon.png
+   :alt: Epsilon Radius Constructor
+
+This methodology will create a symmetric network since that, for a node to be inside the radius of another, the contrary must also be true at all times. However
+this method allows singletons to be created since it may be that there are no nodes inside the radius, which is a big drawback of this method.
+
 KNN Epsilon-Radius Constructor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To overcome the drawbacks of both, the KNN Constructor and the Epsilon-Radius constructor, the KNN Epsilon-Radius Constructor tries to sum-up the strenghts
+of both methods. This constructor will use the Epsilon-Radius method for dense regions of the space and the K-NN method for sparse regions according to the
+following equation:
+
+.. math::
+
+   \left\{\begin{matrix}
+      \epsilon\text{-radius}(v_i), & \text{if} |\epsilon\text{-radius}| > k \\ 
+      k\text{-NN}(v_i), & \text{otherwise} 
+   \end{matrix}\right.
+
+The idea behind this strategy is to add more edges on dense regions that should be more densely connected and to avoid singletons being created on sparse
+regions. This way, the generated network will be connected and will have a variable degree level, better representing real world networks.
+
+.. image:: images/k-eps.png
+   :alt: KNN Epsilon-Radius Constructor
 
 Time Series Constructors
 ------------------------
@@ -64,6 +106,8 @@ of new, unseen, data samples.
 
 Heuristic of Ease of Access
 ---------------------------
+
+This algorithm...
 
 High Level Data Classification
 ------------------------------
