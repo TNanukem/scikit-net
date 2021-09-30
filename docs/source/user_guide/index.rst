@@ -92,11 +92,22 @@ regions. This way, the generated network will be connected and will have a varia
 Time Series Constructors
 ------------------------
 
-Univariate Correlation Constructor
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Those are the methods responsible for transforming time series data, univariate or multivariate, into a complex network representation.
 
-Multivariate Correlation Constructor
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Correlation Constructor
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The idea behind the Correlation Constructor is to split the time series into N segments of lenght L
+each one which will be a node in our complex network. Then, having those segments, one can calculate the pearson correlation coefficient
+between those segments, creating a correlation matrix C.
+
+Then, an user-defined parameter ``r`` defines the correlation threshold for the creation of an edge between two nodes (segments) of the
+network. If the correlation between them is greater than ``r``, then an edge is created.
+
+Notice that this generate an undirected graph since the correlation between two segments will always be symmetric. This module implements
+two variations of this method: one for univariate time series and another for multivariate times series.
+
+More information about those methods can be found on: Yang, Y., Yang, H.: Complex network-based time series analysis. Physica A 387, 1381–1386 (2008)
 
 Supervised Methods
 ==================
@@ -107,10 +118,82 @@ of new, unseen, data samples.
 Heuristic of Ease of Access
 ---------------------------
 
-This algorithm...
+This algorithm can be used, both, as a classifier and as a regressor. Its main idea is to consider the network as a Markov Chain to, on the convergence
+of the chain, identify which classes (or values) have a higher probability for a given unlabeled instance.
+
+Given the network with labeled instances we have the weight matrix of the network, which can be considered as the adjacency matrix of a weighted network.
+
+For each unlabeled instance we add it to the network and calculate the similarity (which in this case can be an Euclidean distance for example) of this
+new node to every other node of the network which will be put into a vector ``S``. Using those similarities, we will disturb the weights matrix, using
+an parameter epsilon, according to the following formula:
+
+.. math::
+   \hat{W} = W + \epsilon \hat{S}
+
+where:
+
+.. math::
+   \hat{S} = \begin{bmatrix}
+      s_1 & \dots & s_1 \\ 
+      s_2 & \dots & s_2\\ 
+      \vdots & \vdots & \vdots\\ 
+      s_L & \dots & s_L
+      \end{bmatrix}
+
+The image below shows the effect of adding this new node and removing if it right after. Notice that now self loops are created in the network since we
+are summing up a value on every weight. 
+
+.. image:: images/ease_of_access.png
+   :alt: Ease of Access network change
+
+Then, we use the weight matrix to calculate the transition probabilities and finally we compute the convergence of the Markov Chain to the limiting
+probabilities. At this point, every limiting probability represents a state and can be interpreted as the probability of the unlabeled example
+belonging to the class of that state.
+
+We then select the ``t`` biggest probabilities to define the class of or unlabeled example. In case of a classification, the mode of the top
+``t`` states is considered. If we are dealing with a regression, then the average value of the ``t`` states is used.
+
+More information about this method can be found on: Cupertino, T.H., Zhao, L., Carneiro, M.G.: Network-based supervised data
+classification by using an heuristic of ease of access. Neurocomputing 149(Part A), 86–92 (2015)
 
 High Level Data Classification
 ------------------------------
+
+The High Level Data Classification algorithm tries to incorporate the findings from traditional Machine Learning algorithms, such as SVMs and
+Random Forests, with the structural pattern recognition promoted by analyzing the metrics of a complex network. In order to do so, it receives
+the tabular data in a regular Machine Learning fashion and fits a low-level (traditional ML) classifier on the data.
+
+Then the dataset is transformed into a complex network with a separated component for each of its classes, using one of the available constructors.
+This network is what we call the training network.
+
+For each of the unlabeled examples we want to predict, two kind of predictions will be done:
+
+ - A low-level prediction where the fitted low-level model will have its ``predict`` or ``predict_proba`` method called to classify the data.
+ - A high-level prediction where we will use the complex network to calculate a probability of the instance belonging to any of the classes
+
+Once this is done, the probability of allocation on each class is defined by the equation:
+
+.. math::
+   F_i^{(y)} = (1 - \rho )L_i^{(y)} + \rho H_i^{(y)}
+
+Where :math:`\rho` is a user-defined parameter, :math:`F_i^{(y)}` is the probability of :math:`i` belonging to class y, :math:`L_i^{(y)}` is the probabilities
+associated with the low-level classifier and :math:`H_i^{(y)` are the probabilities associated with the high-level classifier.
+
+How the high-level classification is done
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to generate the probabilities from :math:`H_i^{(y)}`, each unlabeled example is inserted into each of the components of the network, in 
+which case we are basically testing it on every class of our data. Then, several metrics are calculated on the network, before and after the
+insertion of this new data point. 
+
+If this insertion changes those metrics too much, this is an evidence that maybe it does not belong in that class. On the other hand, if the
+metrics remain almost constant, it means that this new example does not change the structure of the network and thus may be part of that class.
+
+The user can define which metrics will be computed and what is the weight to be used on each metric by means of the list of parameters :math:`\alpha`).
+Notice that :math:`\alpha` must sum-up to 1.
+
+The list of available functions can be seem on the documentation of the NetworkMetrics (colocar link aqui). More information about this method can be
+found on: Silva, T.C., Zhao, L.: Network-based high level data classification. IEEE Trans. Neural Netw. Learn. Syst. 23(6), 954–970 (2012)
 
 Unsupervised Methods
 ====================
@@ -121,6 +204,29 @@ the data so to group up data samples.
 Stochastic Particle Competition
 -------------------------------
 
+The Stochastic Particle Competition algorithm lends some of the concepts of the genetic algorithms optimization to find community structure
+on complex networks. Given a set of ``K`` initial particles, put at random on the nodes of the network, they will compete against each other
+for the dominance of the network nodes. It is expected that after some time this algorithm will converge to a state where each community is
+dominated by one of the initial ``K`` particles.
+
+At each timestep, each particle chooses the the next node to visit by combinating a preferential movement matrix, where it has a greater
+probability of visiting previously visited nodes, and a exploration matrix, which will send this particle over to new areas in order to try
+to dominate them. 
+
+The :math:`\lambda` parameter is responsible to define how much exploration versus exploitation each of the particles will do during the fitting process.
+
+Each time one node is visited by a particle, its dominance on the node increases. The same way, if a rival particle visits the same node, then
+the dominance level will be reduced. On the same way, every time a particle visits a dominated node, it regains energy, while if it visits a
+node dominated by other particle, it loses energy. If a particle runs out of energy, then it is transported back to its dominance region.
+
+The minimal and maximal energy of each particle is defined by the :math:`\omega_{min}` and :math:`\omega_{max}` parameters respectively.
+
+The convergence of the system happens when the difference between the dominance levels on two sequential steps is smaller than a user-defined
+parameter :math:`\epsilon`.
+
+More information about this method can be found on: T. C. Silva and L. Zhao, "Stochastic Competitive Learning in Complex
+Networks," in IEEE Transactions on Neural Networks and Learning Systems, vol. 23, no. 3, pp. 385-398, March 2012, doi: 10.1109/TNNLS.2011.2181866.
+
 Semi Supervised Methods
 =======================
 
@@ -129,3 +235,24 @@ works towards spreading labels from labeled examples to unlabeled examples.
 
 Modularity Label Propagation
 ----------------------------
+
+This algorithm is based on the greedy modularity maximization community detection algorithm. In order to use it, with need a dataset with ``L``
+labeled nodes and several unlabeled nodes. At each step of this algorithm, two communities (nodes) are merged to the same class following some
+restrictions, trying to keep the modularity increment the maximum as possible.
+
+The criteria for the merge at each step is as follows:
+
+- If both nodes already have a class and are from different classes, the merge does not occour
+- If none of the nodes have a class, the merge does not occour
+- If the nodes have the same class, the merge occours
+- If one of the nodes have a class and the other doesn't, the merge occours
+
+If we weren't able to merge the pair of nodes with greatest value on the modularity increment matrix :math:`\Delta Q`, we select the next
+greatest value and so on until a valid merge takes place.
+
+The algorithm runs until there is no node without a class remaining. The original paper of this algorithm states a network reduction technique to
+improve the algorithms performance. However, it wasn't implemented yet.
+
+More information about this method can be found on: Silva, Thiago & Zhao, Liang. (2012). Semi-Supervised Learning Guided
+by the Modularity Measure in Complex Networks. Neurocomputing. 78. 30-37. 10.1016/j.neucom.2011.04.042.
+

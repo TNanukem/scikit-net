@@ -15,7 +15,7 @@ to a given class.
 
 The following code snippet shows how to run it using a tabular dataset:
 
-.. code::
+.. code-block::
 
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor
@@ -24,13 +24,13 @@ The following code snippet shows how to run it using a tabular dataset:
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         test_size=0.33)
     knn_c = KNNConstructor(k=5)
-    classifier = EaseOfAccessClassifier(knn_c, t=5)
-    classifier.fit(X_train, y_train)
+    classifier = EaseOfAccessClassifier(t=5)
+    classifier.fit(X_train, y_train, constructor=knn_c)
     ease = classifier.predict(X_test)
 
 If you want to run it on a Complex Network, then the following snippet shows how to:
 
-.. code::
+.. code-block::
 
     from sknet.supervised import EaseOfAccessClassifier
 
@@ -52,7 +52,8 @@ prediction.
 
 The following snippet shows how to use it:
 
-.. code::
+.. code-block::
+
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor
     from sknet.supervised import HighLevelClassifier
@@ -60,6 +61,6 @@ The following snippet shows how to use it:
     X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                         test_size=0.33)
     knn_c = KNNConstructor(k=5)
-    classifier = HighLevelClassifier(knn_c, t=5)
-    classifier.fit(X_train, y_train)
+    classifier = HighLevelClassifier()
+    classifier.fit(X_train, y_train, constructor=knn_c)
     pred = classifier.predict(X_test)

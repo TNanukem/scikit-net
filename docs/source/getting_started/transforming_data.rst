@@ -10,10 +10,10 @@ So far, the following transformations are available:
 - Tabular data -> Complex networks
 - Time series tabular data -> Complex networks
 
-Below there is an example of how one can use one of the tabular datasets transformers
+Below there is an example of how one can use one of the tabular datasets constructor
 to turn tabular data into a complex network.
 
-.. code::
+.. code-block::
 
     from sklearn.datasets import load_iris
     from dataset_constructors import KNNEpislonRadiusConstructor
@@ -21,3 +21,15 @@ to turn tabular data into a complex network.
     ke_c = KNNEpislonRadiusConstructor(k=3, epsilon=0.3)
     ke_c.fit(X, y)
     G = ke_c.transform()
+
+And below an example of how one can use one of the time series constructor to turn a
+time series into a complex network:
+
+.. code-block::
+
+    from sknet.network_construction import UnivariateCorrelationConstructor
+    r = 0.5
+    L = 10
+    constructor = UnivariateCorrelationConstructor(r, L)
+    constructor.fit(X)
+    G = constructor.transform()
