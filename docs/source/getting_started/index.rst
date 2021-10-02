@@ -6,7 +6,7 @@
 Getting Started
 ===============
 
-Soon
+How to start using the sknet for your projects.
 
 .. toctree::
    :maxdepth: 2
