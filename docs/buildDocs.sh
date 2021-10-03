@@ -4,7 +4,7 @@ set -x
 apt-get update
 apt-get -y install git rsync python3-sphinx build-essential
 apt-get -y install python3-pip
-python3 -m pip install pydata-sphinx-theme
+python3 -m pip install -r requirements.txt
 
 pwd
 ls -lah
