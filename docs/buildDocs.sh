@@ -2,7 +2,9 @@
 set -x
 
 apt-get update
-apt-get -y install git rsync python3-sphinx pydata-sphinx-theme
+apt-get -y install git rsync python3-sphinx build-essential
+apt-get install pip
+pip install pydata-sphinx-theme
 
 pwd
 ls -lah
