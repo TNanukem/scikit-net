@@ -1,0 +1,2 @@
+# flake8: noqa
+from .stochastic_particle_competition import StochasticParticleCompetition
