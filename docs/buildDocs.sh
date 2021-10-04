@@ -2,7 +2,9 @@
 set -x
 
 apt-get update
-apt-get -y install git rsync python3-sphinx pydata-sphinx-theme
+apt-get -y install git rsync python3-sphinx build-essential
+apt-get -y install python3-pip
+python3 -m pip install -r requirements.txt
 
 pwd
 ls -lah
@@ -15,7 +17,7 @@ git config --global user.name "${GITHUB_ACTOR}"
 git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
  
 docroot=`mktemp -d`
-rsync -av "docs/_build/html/" "${docroot}/"
+rsync -av "docs/build/html/" "${docroot}/"
  
 pushd "${docroot}"
 
