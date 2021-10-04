@@ -8,7 +8,7 @@ the number of edges intra-community is way greater than the number of edges extr
 The following code snippet shows how one can use one of the unsupervised methods of the sknet
 to clusterize some dataset:
 
-.. code-block::
+.. code-block:: python
 
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor
