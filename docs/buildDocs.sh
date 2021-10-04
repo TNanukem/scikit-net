@@ -2,9 +2,9 @@
 set -x
 
 apt-get update
-apt-get -y install git rsync build-essential
 apt-get -y install python3-pip
 python3 -m pip install Sphinx==4.1.2
+apt-get -y install git rsync build-essential
 python3 -m pip install -r requirements.txt
 
 pwd
