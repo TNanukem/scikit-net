@@ -13,7 +13,7 @@ So far, the following transformations are available:
 Below there is an example of how one can use one of the tabular datasets constructor
 to turn tabular data into a complex network.
 
-.. code-block::
+.. code-block:: python
 
     from sklearn.datasets import load_iris
     from dataset_constructors import KNNEpislonRadiusConstructor
@@ -25,7 +25,7 @@ to turn tabular data into a complex network.
 And below an example of how one can use one of the time series constructor to turn a
 time series into a complex network:
 
-.. code-block::
+.. code-block:: python
 
     from sknet.network_construction import UnivariateCorrelationConstructor
     r = 0.5

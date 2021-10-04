@@ -15,7 +15,7 @@ to a given class.
 
 The following code snippet shows how to run it using a tabular dataset:
 
-.. code-block::
+.. code-block:: python
 
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor
@@ -30,7 +30,7 @@ The following code snippet shows how to run it using a tabular dataset:
 
 If you want to run it on a Complex Network, then the following snippet shows how to:
 
-.. code-block::
+.. code-block:: python
 
     from sknet.supervised import EaseOfAccessClassifier
 
@@ -52,7 +52,7 @@ prediction.
 
 The following snippet shows how to use it:
 
-.. code-block::
+.. code-block:: python
 
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor

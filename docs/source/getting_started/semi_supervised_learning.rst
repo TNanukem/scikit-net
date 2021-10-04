@@ -5,7 +5,7 @@ The semi-supervised algorithms try to leverage great amounts of unlabeled data
 with a smaller amount of labeled data. One can use a semi-supervised algorithm
 available on the sknet as follows.
 
-.. code-block::
+.. code-block:: python
 
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor
