@@ -39,15 +39,15 @@ for current_version in ${versions}; do
    fi
 
     # HTML #
-    sphinx-build -b html docs/ docs/_build/html/${current_version} -D 
+    sphinx-build -b html docs/ docs/_build/html/${current_version}
 
     # PDF #
-    sphinx-build -b rinoh docs/ docs/_build/rinoh -D
+    sphinx-build -b rinoh docs/ docs/_build/rinoh
     mkdir -p "${docroot}/${current_version}"
     cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_version}/helloWorld-docs__${current_version}.pdf"
 
     # EPUB #
-    sphinx-build -b epub docs/ docs/_build/epub -D
+    sphinx-build -b epub docs/ docs/_build/epub
     mkdir -p "${docroot}/${current_version}"
     cp "docs/_build/epub/target.epub" "${docroot}/${current_version}/helloWorld-docs_${current_version}.epub"
 
