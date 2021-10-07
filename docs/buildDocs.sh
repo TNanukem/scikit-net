@@ -52,7 +52,7 @@ for current_version in ${versions}; do
     cp "docs/build/epub/target.epub" "${docroot}/${current_version}/helloWorld-docs_${current_version}.epub"
 
     # copy the static assets produced by the above build into our docroot
-    cp -R "docs/build/html/${current_version}/" "${docroot}/${current_version}/"
+    cp -a "docs/build/html/${current_version}/." "${docroot}/${current_version}/"
 
   
 done
@@ -77,10 +77,10 @@ cat > index.html <<EOF
 <html>
    <head>
       <title>helloWorld Docs</title>
-      <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/en/master/'" />
+      <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/main/'" />
    </head>
    <body>
-      <p>Please wait while you're redirected to our <a href="/${REPO_NAME}/en/master/">documentation</a>.</p>
+      <p>Please wait while you're redirected to our <a href="/${REPO_NAME}/main/">documentation</a>.</p>
    </body>
 </html>
 EOF
