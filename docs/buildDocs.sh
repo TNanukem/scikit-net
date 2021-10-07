@@ -52,7 +52,7 @@ for current_version in ${versions}; do
     cp "docs/build/epub/target.epub" "${docroot}/${current_version}/helloWorld-docs_${current_version}.epub"
 
     # copy the static assets produced by the above build into our docroot
-    rsync -av "docs/build/html/" "${docroot}/"
+    cp -R "docs/build/html/" "${docroot}/"
 
   
 done
