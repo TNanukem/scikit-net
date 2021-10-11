@@ -37,35 +37,23 @@ for current_version in ${versions}; do
       echo -e "\tINFO: Couldn't find 'docs/conf.py' (skipped)"
       continue
    fi
-  
-   languages="en `find docs/locales/ -mindepth 1 -maxdepth 1 -type d -exec basename '{}' \;`"
-   for current_language in ${languages}; do
-  
-      # make the current language available to conf.py
-      export current_language
-  
-      ##########
-      # BUILDS #
-      ##########
-      echo "INFO: Building for ${current_language}"
-  
-      # HTML #
-      sphinx-build -b html docs/ docs/_build/html/${current_language}/${current_version} -D language="${current_language}"
-  
-      # PDF #
-      sphinx-build -b rinoh docs/ docs/_build/rinoh -D language="${current_language}"
-      mkdir -p "${docroot}/${current_language}/${current_version}"
-      cp "docs/_build/rinoh/target.pdf" "${docroot}/${current_language}/${current_version}/helloWorld-docs_${current_language}_${current_version}.pdf"
-  
-      # EPUB #
-      sphinx-build -b epub docs/ docs/_build/epub -D language="${current_language}"
-      mkdir -p "${docroot}/${current_language}/${current_version}"
-      cp "docs/_build/epub/target.epub" "${docroot}/${current_language}/${current_version}/helloWorld-docs_${current_language}_${current_version}.epub"
-  
-      # copy the static assets produced by the above build into our docroot
-      rsync -av "docs/_build/html/" "${docroot}/"
-  
-   done
+
+    # HTML #
+    sphinx-build -b html docs/source docs/build/html/${current_version}
+
+    # PDF #
+    sphinx-build -b rinoh docs/source docs/build/rinoh
+    mkdir -p "${docroot}/${current_version}"
+    cp "docs/build/rinoh/target.pdf" "${docroot}/${current_version}/helloWorld-docs__${current_version}.pdf"
+
+    # EPUB #
+    sphinx-build -b epub docs/source docs/build/epub
+    mkdir -p "${docroot}/${current_version}"
+    cp "docs/build/epub/target.epub" "${docroot}/${current_version}/helloWorld-docs_${current_version}.epub"
+
+    # copy the static assets produced by the above build into our docroot
+    cp -a "docs/build/html/${current_version}/." "${docroot}/${current_version}/"
+
   
 done
  
@@ -89,10 +77,10 @@ cat > index.html <<EOF
 <html>
    <head>
       <title>helloWorld Docs</title>
-      <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/en/master/'" />
+      <meta http-equiv = "refresh" content="0; url='/${REPO_NAME}/main/'" />
    </head>
    <body>
-      <p>Please wait while you're redirected to our <a href="/${REPO_NAME}/en/master/">documentation</a>.</p>
+      <p>Please wait while you're redirected to our <a href="/${REPO_NAME}/main/">documentation</a>.</p>
    </body>
 </html>
 EOF
