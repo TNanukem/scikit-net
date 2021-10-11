@@ -1,0 +1,13 @@
+.btn-version {
+    background: #2c7fb8ff;
+    color: #ffffff;
+}
+
+.btn-version:hover, .btn-version:focus, .btn-version:active, .btn-version.active, .open > .dropdown-toggle.btn-version {
+    background: #33a6cc;
+}
+
+.btn-version:active, .btn-version.active {
+    background: #007299;
+    box-shadow: none;
+}
