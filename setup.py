@@ -13,12 +13,12 @@ setup(
     version="0.0.1",
     description="Machine Learning in Complex Networks",
     long_description=README,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/marskdown",
     url="https://github.com/TNanukem/sknet",
-    download_url='https://github.com/TNanukem/sknet/archive/refs/tags/v0.0.1.tar.gz',
+    download_url='https://github.com/TNanukem/sknet/archive/refs/tags/v0.0.1.tar.gz',  # noqa: E501
     keywords=['Machine Learning', 'Complex Networks'],
     author="Tiago Toledo Jr",
-    author_email="tiago.nanu@gmailcom",
+    author_email="tiago.nanu@gmail.com",
     license="MIT",
     classifiers=[
         "License :: OSI Approved :: MIT License",
