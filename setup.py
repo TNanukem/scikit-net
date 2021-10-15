@@ -15,7 +15,7 @@ setup(
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/TNanukem/sknet",
-    download_url='https://github.com/TNanukem/sknet/archive/v-0.0.1.tar.gz',
+    download_url='https://github.com/TNanukem/sknet/archive/refs/tags/v0.0.1.tar.gz',
     keywords=['Machine Learning', 'Complex Networks'],
     author="Tiago Toledo Jr",
     author_email="tiago.nanu@gmailcom",
