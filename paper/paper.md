@@ -97,6 +97,5 @@ As of the version 0.1.0, the following algorithms are implemented:
     classifier = EaseOfAccessClassifier()
     classifier.fit(X_train, y_train, constructor=knn_c)
     y_pred = classifier.predict(X_test)
-    accuracy_score(y_test, y_pred)
 
 # References
