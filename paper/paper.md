@@ -55,20 +55,28 @@ areas to allow the users to find patterns on their data.
 ![`sknet` packages structure.\label{fig:packages}](sknet_packages.png)
 
 The main structure of the library is represented on \autoref{fig:packages} and is as follows:
+
 - A `constructor` package responsible for transforming data from different types, such
-as transforming tabular data or time series data into complex networks representations.
-- A `supervised` package responsible for supervised learning tasks where one has labeled data.
-- A `unsupervised` package responsible for unsupervised learning tasks where one does not have labeled data.
-- A `semi-supervised` package responsible for semi-supervised learning tasks where one have a small set of labeled data.
+as transforming tabular data or time series data into complex networks representations.  
+
+- A `supervised` package responsible for supervised learning tasks where one has labeled data.  
+
+- A `unsupervised` package responsible for unsupervised learning tasks where one does not have labeled data.  
+
+- A `semi-supervised` package responsible for semi-supervised learning tasks where one have a small set of labeled data.  
+
+- A `utils` package with some auxiliar functions for the other packages.
 
 As of the version 0.1.0, the following algorithms are implemented:
-- Stochastic Particle Competition (Unsupervised) by @Unsupervised
-- Heuristic of Ease of Access (Supervised) by @Heuristic
-- High Level Data Classification (Supervised) by @HighLevel
-- Modularity Label Propagation (Semi-Supervised) by @SemiSupervised
 
-[Also, some auxiliar methods have been implemented on the `utils` package such as the
- T () and HT () centrality measures that are not available on the NetworkX package.]
+- Stochastic Particle Competition (Unsupervised) by @Unsupervised.  
+
+- Heuristic of Ease of Access (Supervised) by @Heuristic.  
+
+- High Level Data Classification (Supervised) by @HighLevel.  
+
+- Modularity Label Propagation (Semi-Supervised) by @SemiSupervised.  
+
 
  The library was implemented with extensive API documentation and with an user-guide
  that aims to be a basic introduction to people learning more about the area.
@@ -82,7 +90,8 @@ As of the version 0.1.0, the following algorithms are implemented:
     X, y = load_iris(return_X_y = True)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
 
-    # The constructor responsible for transforming the tabular data into a complex network
+    # The constructor responsible for transforming the
+    # tabular data into a complex network
     knn_c = KNNConstructor(k=5)
 
     classifier = EaseOfAccessClassifier()
