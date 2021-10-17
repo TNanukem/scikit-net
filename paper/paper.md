@@ -27,23 +27,24 @@ and in Complex Networks, an area which leverages connections between entities to
 complex phenomena and can be considered as an extension to the graph theory, have been
 changing the society. Both of those areas can be related to the task of 'learning' from data [@book].
 
-It seems, however to be a gap on the interface between those two research areas.
+It seems, however, to be a gap on the interface between those two research areas.
 It was already shown that one can leverage both, using complex networks to improve
 machine learning methods, and using machine learning to exploit the information on
 complex networks to achieve better results.
 However, little to no implementation of methods that can be used on both areas has been
 open-sourced. And for those who did, it was not done in any unified way.
-`sknet` comes a library to solve this gap.
+`sknet` comes as a library to solve this gap.
 
 # Statement of need
 
-`sknet` is a sklearn [@sklearn_api] and NetworkX [@SciPyProceedings_11] compatible Python package for machine learning
-in complex networks. 
+`sknet` is a sklearn [@sklearn_api] and `NetworkX` [@SciPyProceedings_11] compatible Python package for machine learning tasks in complex networks. 
 
 `sknet` was designed to be used by both researchers and by students in courses
 on Machine Learning or Complex Networks. As far as the author knows, no unified
-package was developed focusing on Machine Learning on Complex Networks, altough
-NetworkX presents some algorithms that could be considered Machine Learning methods.
+package was developed focusing on Machine Learning on Complex Networks while trying
+to maintain the known API from `sklearn`. Altough
+NetworkX presents some algorithms that could be considered Machine Learning methods,
+this is not the focus of the library.
 
 # Library overview
 
