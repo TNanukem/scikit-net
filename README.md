@@ -33,4 +33,4 @@ The following code snippet shows how one can transform tabular data into a compl
 
 ## :pencil: Documentation
 
-We provide an extensive API documentation as well with some user guides. The documentation is available on https://tnanukem.github.io/sknet/
+We provide an extensive API documentation as well with some user guides. The documentation is available on https://tnanukem.github.io/scikit-net/

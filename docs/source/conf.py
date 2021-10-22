@@ -55,7 +55,7 @@ html_theme_options = {
     "icon_links": [
         {
             "name": "GitHub",
-            "url": "https://github.com/TNanukem/sknet",
+            "url": "https://github.com/TNanukem/scikit-net",
             "icon": "fab fa-github-square",
         },
         {
