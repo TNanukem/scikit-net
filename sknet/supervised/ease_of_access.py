@@ -177,7 +177,7 @@ class EaseOfAccess(metaclass=ABCMeta):
 
     @abstractmethod
     def _aggregation_method(self, tau):
-        pass
+        """Defines which aggregation method to use"""
 
     def _get_distance_metric(self):
         metric = self.constructor_.metric

@@ -140,6 +140,10 @@ def test_univariate_series_fit(X_time_series_generator):
 
     assert list(G.edges) == expected_edges
 
+    G = constructor.fit_transform(X_time_series_generator[0])
+    assert list(G.nodes) == expected_nodes
+    assert list(G.edges) == expected_edges
+
 
 def test_multivariate_series_fit(X_time_series_generator):
     constructor = (
@@ -157,3 +161,61 @@ def test_multivariate_series_fit(X_time_series_generator):
     expected_edges = [(0, 0), (1, 1), (2, 2)]
 
     assert list(G.edges) == expected_edges
+
+    G = constructor.fit_transform(X_time_series_generator[1])
+    assert list(G.nodes) == expected_nodes
+    assert list(G.edges) == expected_edges
+
+
+def test_get_set_params():
+    # Time series constructors
+    constructor = (
+        time_series_constructors.UnivariateCorrelationConstructor()
+    )
+    param_dict = {'r': 0.3, 'L': 5}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    constructor = (
+        time_series_constructors.MultivariateCorrelationConstructor()
+    )
+    param_dict = {'r': 0.3}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    # Dataset constructors
+    param_dict = {"k": 3, "epsilon": None, "metric": 'minkowski',
+                  "leaf_size": 40, "sep_comp": True}
+    constructor = dataset_constructors.KNNConstructor()
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    param_dict['k'] = None
+    param_dict['epsilon'] = 0.1
+    constructor = dataset_constructors.EpsilonRadiusConstructor()
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    param_dict['k'] = 2
+    constructor = dataset_constructors.KNNEpislonRadiusConstructor()
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+
+def test_not_fitted_raise():
+    with pytest.raises(Exception):
+        dataset_constructors.KNNConstructor().transform()
+
+    with pytest.raises(Exception):
+        dataset_constructors.EpsilonRadiusConstructor().transform()
+
+    with pytest.raises(Exception): 
+        dataset_constructors.KNNEpislonRadiusConstructor().transform()
+
+    with pytest.raises(Exception):
+        time_series_constructors.UnivariateCorrelationConstructor().transform()
+
+    with pytest.raises(Exception):
+        time_series_constructors.MultivariateCorrelationConstructor(
+            
+        ).transform()
