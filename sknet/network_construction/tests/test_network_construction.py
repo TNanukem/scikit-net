@@ -209,7 +209,7 @@ def test_not_fitted_raise():
     with pytest.raises(Exception):
         dataset_constructors.EpsilonRadiusConstructor().transform()
 
-    with pytest.raises(Exception): 
+    with pytest.raises(Exception):
         dataset_constructors.KNNEpislonRadiusConstructor().transform()
 
     with pytest.raises(Exception):
@@ -217,5 +217,5 @@ def test_not_fitted_raise():
 
     with pytest.raises(Exception):
         time_series_constructors.MultivariateCorrelationConstructor(
-            
+
         ).transform()
