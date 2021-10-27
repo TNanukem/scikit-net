@@ -39,3 +39,14 @@ def test_predict(module_generator, X_y_generator):
                 1, 1, 2, 1, 2]
     pred = module_generator.predict(X_y_generator[2])
     np.testing.assert_equal(expected, pred)
+
+
+def test_set_get_param(module_generator):
+    module_generator.set_params(p=0.2)
+    assert module_generator.get_params()['p'] == 0.2
+
+
+def test_alpha_raise_on_fit(module_generator):
+    module_generator.set_params(alpha=[0.7, 0.9])
+    with pytest.raises(Exception):
+        module_generator.fit(X_y_generator[0], X_y_generator[1])

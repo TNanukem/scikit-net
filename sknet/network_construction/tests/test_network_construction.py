@@ -95,6 +95,26 @@ def test_epsilon_radius_fit(X_y_generator):
     assert list(G.edges) == expected_edges
 
 
+def test_epsilon_radius_fit_true_sep_comp(X_y_generator):
+
+    eps = dataset_constructors.EpsilonRadiusConstructor(epsilon=1,
+                                                        sep_comp=True)
+
+    with pytest.raises(Exception):
+        eps.transform()
+
+    eps.fit(X_y_generator[0], X_y_generator[1])
+
+    G = eps.transform()
+
+    expected_nodes = [0, 1, 2, 3, 7, 5, 6, 8, 10, 11, 12, 13, 14, 9]
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(0, 7), (3, 5), (11, 9)]
+
+    assert list(G.edges) == expected_edges
+
+
 def test_knn_epsilon_fit(X_y_generator):
 
     eps_knn = dataset_constructors.KNNEpislonRadiusConstructor(
@@ -116,6 +136,27 @@ def test_knn_epsilon_fit(X_y_generator):
                       (6, 7), (8, 9), (8, 12),
                       (9, 11), (9, 12), (9, 10),
                       (10, 11), (11, 12)]
+
+    assert list(G.edges) == expected_edges
+
+
+def test_knn_epsilon_fit_true_sep_comp(X_y_generator):
+
+    eps_knn = dataset_constructors.KNNEpislonRadiusConstructor(
+      k=2, epsilon=1.5, sep_comp=True)
+
+    with pytest.raises(Exception):
+        eps_knn.transform()
+
+    eps_knn.fit(X_y_generator[0], X_y_generator[1])
+
+    G = eps_knn.transform()
+
+    expected_nodes = [10, 11, 12, 13, 14, 9, 8]
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(10, 11), (10, 9), (11, 9), (11, 12), (12, 9),
+                      (12, 8), (9, 8)]
 
     assert list(G.edges) == expected_edges
 
