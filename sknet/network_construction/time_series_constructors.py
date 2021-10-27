@@ -15,8 +15,6 @@ class TimeSeriesBaseConstructor(metaclass=ABCMeta):
 
     Do not use this abstract class, use derived classes instead
     """
-    def __init__(self):
-        pass
 
     def fit(self, X, y=None):
         """Fit the constructor creating the NetworkX graph
@@ -73,7 +71,7 @@ class TimeSeriesBaseConstructor(metaclass=ABCMeta):
 
     @abstractmethod
     def add_nodes(self, X, y=None):
-        pass
+        """Adds a node to the graph"""
 
     def set_params(self, **parameters):
         for parameter, value in parameters.items():
@@ -197,7 +195,7 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
     >>> from sknet.network_construction import MultivariateCorrelationConstructor  # noqa: E501
     >>> r = 0.5
     >>> L = 10
-    >>> constructor = UnivariateCorrelationConstructor(r, L)
+    >>> constructor = MultivariateCorrelationConstructor(r, L)
     >>> constructor.fit(X)
     >>> G_ = constructor.transform()
 
