@@ -44,7 +44,7 @@ def test_fit_y(X_y_generator, result_generator):
     ML.fit(X_y_generator[0], X_y_generator[1], constructor=knn_c)
 
     np.testing.assert_equal(result_generator,
-                            np.array(ML.generated_y_,
+                            np.array(ML.get_propagated_labels(),
                                      dtype='float32')
                             )
 
@@ -56,6 +56,25 @@ def test_fit_G(X_y_generator, result_generator):
     ML.fit(G=G)
 
     np.testing.assert_equal(result_generator,
-                            np.array(ML.generated_y_,
+                            np.array(ML.get_propagated_labels(),
                                      dtype='float32')
                             )
+
+
+def test_set_get_params():
+    ML = ModularityLabelPropagation()
+    ML.set_params(n_iter=10)
+    assert ML.get_params() == {}
+
+
+def test_raise_on_fit_1(X_y_generator):
+    ML = ModularityLabelPropagation()
+    with pytest.raises(Exception):
+        ML.fit(X=X_y_generator[0], y=None, G=None)
+
+
+def test_raise_on_fit_2(X_y_generator):
+    ML = ModularityLabelPropagation()
+    with pytest.raises(Exception):
+        ML.fit(X=X_y_generator[0], y=X_y_generator[1], G=None,
+               constructor=None)

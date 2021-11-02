@@ -95,6 +95,26 @@ def test_epsilon_radius_fit(X_y_generator):
     assert list(G.edges) == expected_edges
 
 
+def test_epsilon_radius_fit_true_sep_comp(X_y_generator):
+
+    eps = dataset_constructors.EpsilonRadiusConstructor(epsilon=1,
+                                                        sep_comp=True)
+
+    with pytest.raises(Exception):
+        eps.transform()
+
+    eps.fit(X_y_generator[0], X_y_generator[1])
+
+    G = eps.transform()
+
+    expected_nodes = [0, 1, 2, 3, 7, 5, 6, 8, 10, 11, 12, 13, 14, 9]
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(0, 7), (3, 5), (11, 9)]
+
+    assert list(G.edges) == expected_edges
+
+
 def test_knn_epsilon_fit(X_y_generator):
 
     eps_knn = dataset_constructors.KNNEpislonRadiusConstructor(
@@ -120,6 +140,27 @@ def test_knn_epsilon_fit(X_y_generator):
     assert list(G.edges) == expected_edges
 
 
+def test_knn_epsilon_fit_true_sep_comp(X_y_generator):
+
+    eps_knn = dataset_constructors.KNNEpislonRadiusConstructor(
+      k=2, epsilon=1.5, sep_comp=True)
+
+    with pytest.raises(Exception):
+        eps_knn.transform()
+
+    eps_knn.fit(X_y_generator[0], X_y_generator[1])
+
+    G = eps_knn.transform()
+
+    expected_nodes = [10, 11, 12, 13, 14, 9, 8]
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(10, 11), (10, 9), (11, 9), (11, 12), (12, 9),
+                      (12, 8), (9, 8)]
+
+    assert list(G.edges) == expected_edges
+
+
 def test_univariate_series_fit(X_time_series_generator):
     constructor = (
         time_series_constructors.UnivariateCorrelationConstructor(
@@ -140,6 +181,10 @@ def test_univariate_series_fit(X_time_series_generator):
 
     assert list(G.edges) == expected_edges
 
+    G = constructor.fit_transform(X_time_series_generator[0])
+    assert list(G.nodes) == expected_nodes
+    assert list(G.edges) == expected_edges
+
 
 def test_multivariate_series_fit(X_time_series_generator):
     constructor = (
@@ -157,3 +202,61 @@ def test_multivariate_series_fit(X_time_series_generator):
     expected_edges = [(0, 0), (1, 1), (2, 2)]
 
     assert list(G.edges) == expected_edges
+
+    G = constructor.fit_transform(X_time_series_generator[1])
+    assert list(G.nodes) == expected_nodes
+    assert list(G.edges) == expected_edges
+
+
+def test_get_set_params():
+    # Time series constructors
+    constructor = (
+        time_series_constructors.UnivariateCorrelationConstructor()
+    )
+    param_dict = {'r': 0.3, 'L': 5}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    constructor = (
+        time_series_constructors.MultivariateCorrelationConstructor()
+    )
+    param_dict = {'r': 0.3}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    # Dataset constructors
+    param_dict = {"k": 3, "epsilon": None, "metric": 'minkowski',
+                  "leaf_size": 40, "sep_comp": True}
+    constructor = dataset_constructors.KNNConstructor()
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    param_dict['k'] = None
+    param_dict['epsilon'] = 0.1
+    constructor = dataset_constructors.EpsilonRadiusConstructor()
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    param_dict['k'] = 2
+    constructor = dataset_constructors.KNNEpislonRadiusConstructor()
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+
+def test_not_fitted_raise():
+    with pytest.raises(Exception):
+        dataset_constructors.KNNConstructor().transform()
+
+    with pytest.raises(Exception):
+        dataset_constructors.EpsilonRadiusConstructor().transform()
+
+    with pytest.raises(Exception):
+        dataset_constructors.KNNEpislonRadiusConstructor().transform()
+
+    with pytest.raises(Exception):
+        time_series_constructors.UnivariateCorrelationConstructor().transform()
+
+    with pytest.raises(Exception):
+        time_series_constructors.MultivariateCorrelationConstructor(
+
+        ).transform()

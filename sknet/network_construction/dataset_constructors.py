@@ -51,7 +51,6 @@ class BaseConstructor(metaclass=ABCMeta):
         function to retrieve the network with the new nodes.
 
         """
-        pass
 
     def fit(self, X, y=None):
         """Fit the constructor creating the NetworkX graph
