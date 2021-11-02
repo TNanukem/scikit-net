@@ -42,9 +42,20 @@ open-sourced. And for those who did, it was not done in any unified way.
 `sknet` was designed to be used by both researchers and by students in courses
 on Machine Learning or Complex Networks. As far as the author knows, no unified
 package was developed focusing on Machine Learning on Complex Networks while trying
-to maintain the known API from `sklearn`. Altough
-NetworkX presents some algorithms that could be considered Machine Learning methods,
-this is not the focus of the library.
+to maintain the known API from `sklearn`.
+
+Altough ``NetworkX`` presents some algorithms that could be considered Machine Learning methods,
+this is not the focus of the library which focuses on developing the tools to create and analyze
+complex networks.
+
+Also, the ``sklearn`` package is the go-to python package for machine learning methods, however,
+it focus is mainly on tabular data and there is no available method directly appliable to complex
+networks.
+
+Finally, the ``giotto-tda`` [@giotto-tda] package implements some Topological Data Analysis tools
+that aim to improve machine learning methods, however, it does not implement any estimator
+and also focuses on the specific area of topology, which overlaps but not entirely to the complex
+networks area.
 
 # Library overview
 
