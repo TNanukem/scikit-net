@@ -4,7 +4,8 @@
 
 The sknet project is a scikit-learn and NetworkX compatible framework for machine learning in complex networks. It provides learning algorithms for complex networks, as well as transforming methods to turn tabular data into complex networks.
 
-It started in 2021 as a project from volunteers to help to improve the development of research on the interface between complex networks and machine learning.
+It started in 2021 as a project from volunteers to help to improve the development of research on the interface between complex networks and machine learning. It main focus
+is to help researchers and students to develop solutions using machine learning on complex networks.
 
 ## :computer: Installation
 
