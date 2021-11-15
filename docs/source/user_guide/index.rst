@@ -251,7 +251,15 @@ If we weren't able to merge the pair of nodes with greatest value on the modular
 greatest value and so on until a valid merge takes place.
 
 The algorithm runs until there is no node without a class remaining. The original paper of this algorithm states a network reduction technique to
-improve the algorithms performance. However, it wasn't implemented yet.
+improve the algorithms performance. In order to use it, the reduction_factor list parameter should be set during
+the class instantiation.
+
+This parameter will define, for each class, the percentage of the network reduction. The basic working of the method is:
+
+- Select two nodes from the same class at random
+- Remove the first one
+- Redirects the edges from the first node to the second
+- Repeat until the desired percentage of the nodes are removed
 
 More information about this method can be found on: Silva, Thiago & Zhao, Liang. (2012). Semi-Supervised Learning Guided
 by the Modularity Measure in Complex Networks. Neurocomputing. 78. 30-37. 10.1016/j.neucom.2011.04.042.
