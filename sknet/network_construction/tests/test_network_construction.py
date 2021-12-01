@@ -115,6 +115,54 @@ def test_epsilon_radius_fit_true_sep_comp(X_y_generator):
     assert list(G.edges) == expected_edges
 
 
+def test_clustering_heuristics_fit(X_y_generator):
+    clustering = dataset_constructors.SingleLinkageHeuristicConstructor(
+        sep_comp=False)
+
+    with pytest.raises(Exception):
+        clustering.transform()
+
+    clustering.fit(X_y_generator[0], X_y_generator[1])
+
+    G = clustering.transform()
+
+    expected_nodes = [0, 11, 2, 9, 3, 4, 5, 6, 7, 8, 10, 12]
+
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(0, 11), (0, 2), (0, 3), (0, 4),
+                      (0, 6), (0, 7), (11, 8), (11, 10),
+                      (11, 12), (2, 9), (2, 3), (2, 4),
+                      (2, 5), (9, 3), (9, 8), (9, 10),
+                      (9, 12), (3, 4), (3, 5), (4, 5),
+                      (5, 6), (5, 8), (6, 7), (8, 10),
+                      (8, 12)]
+
+    assert list(G.edges) == expected_edges
+
+
+def test_clustering_heuristics_fit_true_sep_comp(X_y_generator):
+    clustering = dataset_constructors.SingleLinkageHeuristicConstructor(
+        sep_comp=True)
+
+    with pytest.raises(Exception):
+        clustering.transform()
+
+    clustering.fit(X_y_generator[0], X_y_generator[1])
+
+    G = clustering.transform()
+
+    expected_nodes = [2, 3, 4, 5, 0, 6, 7, 9, 8, 11, 10, 12]
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(2, 3), (2, 4), (2, 5), (3, 4), (3, 5),
+                      (4, 5), (0, 6), (0, 7), (6, 7), (9, 8),
+                      (9, 10), (9, 12), (8, 11), (8, 10),
+                      (8, 12), (11, 10), (11, 12)]
+
+    assert list(G.edges) == expected_edges
+
+
 def test_knn_epsilon_fit(X_y_generator):
 
     eps_knn = dataset_constructors.KNNEpislonRadiusConstructor(
@@ -242,6 +290,13 @@ def test_get_set_params():
     constructor.set_params(**param_dict)
     assert param_dict == constructor.get_params()
 
+    constructor = dataset_constructors.SingleLinkageHeuristicConstructor()
+    param_dict = {'k': 3, 'lambda_': 0.1,
+                  'n_jobs': 2, 'sep_comp': True,
+                  'metric': 'euclidean'}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
 
 def test_not_fitted_raise():
     with pytest.raises(Exception):
@@ -254,9 +309,11 @@ def test_not_fitted_raise():
         dataset_constructors.KNNEpislonRadiusConstructor().transform()
 
     with pytest.raises(Exception):
+        dataset_constructors.ClusteringHeuristicConstructor().transform()
+
+    with pytest.raises(Exception):
         time_series_constructors.UnivariateCorrelationConstructor().transform()
 
     with pytest.raises(Exception):
         time_series_constructors.MultivariateCorrelationConstructor(
-
         ).transform()

@@ -89,6 +89,26 @@ regions. This way, the generated network will be connected and will have a varia
 .. image:: images/k-eps.png
    :alt: KNN Epsilon-Radius Constructor
 
+Single Linkage Clustering Heuristics Constructor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This constructor uses the idea of the Single Linkage heuristic for clustering to generate a network that preserves the original clustering topology
+of the dataset. This tries to avoid the over sparsity or over density of the generated networks from the previous constructors that are not able to
+guarantee the maintainance of the cluster topology.
+
+The first step is to calculate the distance between each instance of the dataset is calculated using some distance metric, like the Euclidean Distance.
+With that in hands, each node is considered a cluster, then, the two closest clusters are found and the k nearest neighbors between them are connected
+by edges if their distance is smaller than a threshold defined by the intra-cluster dissimilarity of each one.
+
+This process merges the two clusters. Then, it repeats until we have only one cluster left, then the network is complete.
+
+This method will keep the sparsity between clusters and the density inside a cluster, which, depending on the problem at hand, can be necessary
+for the study of the data.
+
+More information about this method can be found in the following paper:
+Cupertino, T.H., Huertas, J., & Zhao, L. (2013). Data clustering using controlled consensus in complex networks. Neurocomputing, 118, 132-140.
+
+
 Time Series Constructors
 ------------------------
 
