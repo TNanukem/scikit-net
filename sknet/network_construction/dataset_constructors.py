@@ -3,6 +3,7 @@ import pandas as pd
 import networkx as nx
 
 from abc import ABCMeta, abstractmethod
+from sklearn.metrics import pairwise_distances
 from sklearn.neighbors import KDTree, BallTree
 
 
@@ -182,7 +183,7 @@ class KNNConstructor(BaseConstructor):
     >>> knn_c = KNNConstructor(k=3)
     >>> knn_c.fit(X, y)
     >>> G = knn_c.transform()
-    >>> print(len(G.nodes))
+    >>> # print(len(G.nodes))
     150
 
     Notes
@@ -327,7 +328,7 @@ class EpsilonRadiusConstructor(BaseConstructor):
     >>> eps_c = EpsilonRadiusConstructor(epsilon=3)
     >>> eps_c.fit(X, y)
     >>> G = eps_c.transform()
-    >>> print(len(G.nodes))
+    >>> # print(len(G.nodes))
     150
 
     Notes
@@ -482,7 +483,7 @@ class KNNEpislonRadiusConstructor(BaseConstructor):
     >>> ke_c = KNNEpislonRadiusConstructor(k=3, epsilon=0.3)
     >>> ke_c.fit(X, y)
     >>> G = ke_c.transform()
-    >>> print(len(G.nodes))
+    >>> # print(len(G.nodes))
     150
 
     Notes
@@ -650,3 +651,195 @@ def _tree_selector(X, leaf_size=40, metric='minkowski'):
     # High dimensional spaces are fit to Ball Tree
     if X.shape[1] >= 30:
         return BallTree(X, leaf_size=leaf_size, metric=metric)
+
+
+class SingleLinkageHeuristicConstructor(BaseConstructor):
+    """
+    Use Single Linkage Heuristics to generate a complex network from
+    tabular data
+
+    Parameters
+    ----------
+    k : int, default=3
+        The number of closests points between two grops to be considered
+        to create an edge.
+    lambda_ : positive float, default=0.1
+        Multiplying factor on the average dissimilarity on the groups to
+        define the critical distance
+    sep_comp : boolean, default=True
+        If True and if y is not None, then each class of the dataset
+        will be a separated component, so nodes from one class will only
+        be connected to those of the same class. If False then this
+        restriction is not applied.
+    metric : str or DistanceMetric object, default='euclidean'
+        The distance metric to use for the neighborhood tree. Refer
+        to the DistanceMetric class documentation from sklearn for a list
+        of available metrics
+    n_jobs : int, default=None
+        The number of parallel jobs to run for neighbors search.
+        None means 1 unless in a joblib.parallel_backend context and -1 means
+        using all processors.
+
+    Examples
+    --------
+    >>> from sklearn.datasets import load_iris
+    >>> from dataset_constructors import SingleLinkageHeuristicConstructor
+    >>> X, y = load_iris(return_X_y = True)
+    >>> ch = SingleLinkageHeuristicConstructor(k=3, epsilon=0.3)
+    >>> ch.fit(X, y)
+    >>> G = ke_c.transform()
+    >>> # print(len(G.nodes))
+    150
+
+    References
+    ----------
+    Cupertino, T.H., Huertas, J., & Zhao, L. (2013). Data clustering using
+    controlled consensus in complex networks. Neurocomputing, 118, 132-140.
+
+    """
+    def __init__(self, k=3, lambda_=0.1, sep_comp=False,
+                 metric='euclidean', n_jobs=None):
+        self.k = k
+        self.lambda_ = lambda_
+        self.sep_comp = sep_comp
+        self.metric = metric
+        self.n_jobs = n_jobs
+
+    def get_params(self, deep=True):
+        return {'k': self.k, 'lambda_': self.lambda_,
+                'sep_comp': self.sep_comp,
+                'metric': self.metric, 'n_jobs': self.n_jobs}
+
+    def add_nodes(self, X, y=None):
+        """Add nodes to an existing network inside a fitted transformer
+        object
+
+        Parameters
+        ----------
+        X : {array-like, pandas dataframe} of shape (n_samples, n_features)
+            The input data.
+        y : {ndarray, pandas series}, shape (n_samples,) or
+        (n_samples, n_classes), default=None
+            The true classes.
+
+        Notes
+        -----
+        If y is set, then the class of each node will be inserted into
+        the node information under the label 'class'. If sep_comp is true
+        then each class will be a separated component of the network.
+
+        If by some reason the transformer is not fitted, this will generate
+        an error.
+
+        After the new nodes are added, one should use the get_network
+        function to retrieve the network with the new nodes.
+
+        """
+        if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+            X = np.array(X)
+
+        if self.lambda_ < 0:
+            raise Exception('lambda_ parameter should be positive')
+
+        if self.fitting:
+            self.G_ = nx.Graph()
+            self.groups_ = np.array([i for i in range(len(X))])
+        else:
+            self.groups_.extend(
+                [i + np.max(np.unique(self.groups)) for i in range(len(X))]
+            )
+            X = np.vstack((self.X_, X))
+
+        if y is None and self.sep_comp is True:
+            raise Exception(
+                """y parameter is required for separated construction,
+                set sep_comp to False"""
+            )
+
+        number_of_groups = len(self.groups_)
+
+        X_dist = pairwise_distances(X, metric=self.metric,
+                                    n_jobs=self.n_jobs)
+
+        while number_of_groups > 1:
+            if number_of_groups == len(X):
+                dist = X_dist
+
+            else:
+                dist = self._generate_new_X_dist(X_dist)
+
+            for i in range(dist.shape[0]):
+                dist[i, i] = np.inf
+
+            # Finds the two closest groups and get their values
+            i, j = np.unravel_index(dist.argmin(), dist.shape)
+
+            # If the two closest groups are the same, then find other pair
+            if self.groups_[i] == self.groups_[j]:
+                while self.groups_[i] == self.groups_[j]:
+                    dist[i][j] = np.inf
+                    i, j = np.unravel_index(dist.argmin(), dist.shape)
+
+            # Finds the nodes that are on the group i and j
+            g1 = np.where(self.groups_ == self.groups_[i])[0]
+            g1_idx = i
+
+            g2 = np.where(self.groups_ == self.groups_[j])[0]
+            g2_idx = j
+
+            # Finds the distance between all members of the group
+            g1_dists = pairwise_distances(X[g1])
+
+            g2_dists = pairwise_distances(X[g2])
+
+            # Finds the average intra-cluster dissimilarity
+            d1 = np.mean(g1_dists)
+            d2 = np.mean(g2_dists)
+
+            # Select the k most similar nodes between G1 and G2
+            group_distance = pairwise_distances(X[g1], X[g2])
+            candidates = []
+
+            if group_distance.shape[0] < self.k:
+                k = group_distance.shape[0]
+            else:
+                k = self.k
+
+            for i in range(k):
+                i, j = np.unravel_index(
+                    group_distance.argmin(), group_distance.shape
+                )
+                candidates.append((g1[i], g2[j]))
+                group_distance[i, j] = np.inf
+
+            # Generate edges
+            dc = self.lambda_ * max(d1, d2)
+
+            for u, v in candidates:
+                if self.sep_comp is True and y[u] != y[v]:
+                    continue
+                if dist[u, v] <= dc:
+                    self.G_.add_edge(u, v, weight=dist[u, v])
+
+            # Merge groups
+            self.groups_[
+                self.groups_ == self.groups_[g2_idx]] = self.groups_[g1_idx]
+
+            # Update number of groups
+            number_of_groups = len(np.unique(self.groups_))
+
+    def _generate_new_X_dist(self, X_dist):
+        number_of_groups = len(self.groups_)
+
+        new_X_dist = np.zeros((number_of_groups, number_of_groups))
+
+        # Find the distance between the two closest nodes for each group pair
+        for i in np.unique(self.groups_):
+            for j in np.unique(self.groups_):
+                if i != j:
+                    g1_nodes = np.where(self.groups_ == i)[0]
+                    g2_nodes = np.where(self.groups_ == j)[0]
+
+                    new_X_dist[i, j] = np.min(X_dist[g1_nodes, :][:, g2_nodes])
+
+        return new_X_dist

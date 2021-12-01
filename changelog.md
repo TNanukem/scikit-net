@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Modularity Label Propagation now allows a network reduction proposed by Silva et al.
+- New constructor, based on single linkage clustering heuristics, was added to transform datasets into networks
 
 ### Changed
 
