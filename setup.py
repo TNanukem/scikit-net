@@ -27,7 +27,8 @@ setup(
     install_requires=['attrs',
                       'decorator',
                       'importlib-metadata',
-                      'iniconfig',
+                      'iniconfig'
+                      'giotto-tda',
                       'joblib',
                       'networkx',
                       'numpy',

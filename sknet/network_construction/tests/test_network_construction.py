@@ -234,6 +234,32 @@ def test_univariate_series_fit(X_time_series_generator):
     assert list(G.edges) == expected_edges
 
 
+def test_univariate_recurrence_fit(X_time_series_generator):
+    constructor = (
+        time_series_constructors.UnivariateRecurrenceNetworkConstructor(
+            10
+        )
+    )
+
+    constructor.fit(X_time_series_generator[0])
+    G = constructor.transform()
+
+    expected_nodes = [i for i in range(10)]
+    assert list(G.nodes) == expected_nodes
+
+    expected_edges = [(0, 1), (0, 3), (0, 4), (0, 9),
+                      (1, 4), (1, 5), (1, 6), (1, 9),
+                      (2, 7), (2, 9), (3, 8), (4, 5),
+                      (4, 9), (5, 6), (5, 8), (5, 9),
+                      (6, 9)]
+
+    assert list(G.edges) == expected_edges
+
+    G = constructor.fit_transform(X_time_series_generator[0])
+    assert list(G.nodes) == expected_nodes
+    assert list(G.edges) == expected_edges
+
+
 def test_multivariate_series_fit(X_time_series_generator):
     constructor = (
         time_series_constructors.MultivariateCorrelationConstructor(
@@ -269,6 +295,14 @@ def test_get_set_params():
         time_series_constructors.MultivariateCorrelationConstructor()
     )
     param_dict = {'r': 0.3}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    constructor = (
+        time_series_constructors.UnivariateRecurrenceNetworkConstructor()
+    )
+    param_dict = {'epsilon': 0.1, 'd': 2, 'tau': 1,
+                  'metric': 'euclidean', 'n_jobs': None}
     constructor.set_params(**param_dict)
     assert param_dict == constructor.get_params()
 
@@ -316,4 +350,8 @@ def test_not_fitted_raise():
 
     with pytest.raises(Exception):
         time_series_constructors.MultivariateCorrelationConstructor(
+        ).transform()
+
+    with pytest.raises(Exception):
+        time_series_constructors.UnivariateRecurrenceNetworkConstructor(
         ).transform()
