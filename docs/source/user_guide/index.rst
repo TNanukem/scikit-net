@@ -129,6 +129,26 @@ two variations of this method: one for univariate time series and another for mu
 
 More information about those methods can be found on: Yang, Y., Yang, H.: Complex network-based time series analysis. Physica A 387, 1381–1386 (2008)
 
+Recurrence Constructor
+^^^^^^^^^^^^^^^^^^^^^^
+
+The recurrence constructor uses the concept of recurrence on the phase space of the time series. Given an embedding of the time series (such as the
+Takens Embedding), it is said that two states are recurrent if they are similar enough. So, given two states in the phase space defined as:
+
+.. math::
+    x_i = (x(t), x(t + \tau), \dots , x(t + (d - 1)\tau))
+
+Two states are recurrent if:
+
+.. math::
+    ||x_i - x_j|| < \epsilon
+
+Then, after the embedding was made, one can easily calculate a distance matrix between each of the states. Then, the self-loops (diagonals) are
+set to zero and every entry smaller than epsilon will generate an edge between the states of the series.
+
+More information about this method can be found on: Donner, R.V., Zou, Y., Donges, J.F., Marwan, N., Kurths, J.: Recurrence
+networks – a novel paradigm for nonlinear time series analysis. New J. Phys. 12, 033025 (2010)
+
 Supervised Methods
 ==================
 
