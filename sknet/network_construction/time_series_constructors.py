@@ -261,7 +261,7 @@ class UnivariateRecurrenceNetworkConstructor(TimeSeriesBaseConstructor):
     Creates a networkX complex network from a univariate time series
     by creating edges between recurrent (close) states on the phase space
     of the series.
-    
+
     The phase space is constructed using the Takens Embedding Theorem.
 
     Parameters
