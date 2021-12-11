@@ -6,6 +6,7 @@ apt-get update
 apt-get -y install python3-pip
 python3 -m pip install Sphinx==4.1.2
 apt-get -y install git rsync build-essential python3-stemmer python3-gitpython3-virtualenv python3-setuptools
+python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 python3 -m pip install --upgrade rinohtype pygments
 
