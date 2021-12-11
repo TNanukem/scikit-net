@@ -24,16 +24,16 @@ bibliography: paper.bib
 
 Recent advances in Machine Learning, an area that leverages data to identify patterns,
 and in Complex Networks, an area which leverages connections between entities to identify
-complex phenomena and can be considered as an extension to the graph theory, have been
-changing the society. Both of those areas can be related to the task of 'learning' from data [@book].
+complex phenomena and can be considered as an extension to the graph theory, are
+changing society. Both of those areas can be related to the task of 'learning' from data [@book].
 
-It seems, however, to be a gap on the interface between those two research areas.
-It was already shown that one can leverage both, using complex networks to improve
+There seems, however, to be a gap between those two research areas.
+It has already been shown that one can leverage both, using complex networks to improve
 machine learning methods, and using machine learning to exploit the information on
 complex networks to achieve better results.
 However, little to no implementation of methods that can be used on both areas has been
 open-sourced. And for those who did, it was not done in any unified way.
-`sknet` comes as a library to solve this gap.
+`sknet` exists as a library to solve this gap.
 
 # Statement of need
 
@@ -59,8 +59,8 @@ networks area.
 
 # Library overview
 
-The `sknet` tries to maintain, as much as possible, the known API structure from
-the `scikit-learn`. It main focus is in transforming data from of kind of representation
+`sknet` tries to maintain, as much as possible, the known API structure from
+the `scikit-learn`. It main focus is in transforming data from one kind of representation
 to the other and allowing combined methods from the Complex Networks and Machine Learning
 areas to allow the users to find patterns on their data.
 
@@ -90,12 +90,14 @@ As of the version 0.1.0, the following algorithms are implemented:
 - Modularity Label Propagation (Semi-Supervised) by @SemiSupervised.  
 
 
- The library was implemented with extensive API documentation and with an user-guide
+ The library was implemented with extensive API documentation and with a user-guide
  that aims to be a basic introduction to people learning more about the area.
 
 ## Usage Example
 
     from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    from sklean.metrics import accuracy_score
     from sknet.network_construction import KNNConstructor
     from sknet.supervised import EaseOfAccessClassifier
 
