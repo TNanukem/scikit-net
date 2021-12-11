@@ -9,7 +9,7 @@ User Guide
 This section will introduce the main modules of the sknet and show some examples as well as explaining the theory
 behind the implemented algorithms.
 
-The sknet main structure divide the classes into two main types: auxiliar methods such as utilities and transformations and
+The sknet main structure divide the classes into two main types: auxiliary methods such as utilities and transformations and
 machine learning methods which are divided into supervised, unsupervised and semi supervised methods.
 
 Most of the Machine Learning methods can work both with tabular data (in form of a Pandas Dataframe or a Numpy Array) and with graph data
@@ -89,6 +89,26 @@ regions. This way, the generated network will be connected and will have a varia
 .. image:: images/k-eps.png
    :alt: KNN Epsilon-Radius Constructor
 
+Single Linkage Clustering Heuristics Constructor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This constructor uses the idea of the Single Linkage heuristic for clustering to generate a network that preserves the original clustering topology
+of the dataset. This tries to avoid the over sparsity or over density of the generated networks from the previous constructors that are not able to
+guarantee the maintainance of the cluster topology.
+
+The first step is to calculate the distance between each instance of the dataset is calculated using some distance metric, like the Euclidean Distance.
+With that in hands, each node is considered a cluster, then, the two closest clusters are found and the k nearest neighbors between them are connected
+by edges if their distance is smaller than a threshold defined by the intra-cluster dissimilarity of each one.
+
+This process merges the two clusters. Then, it repeats until we have only one cluster left, then the network is complete.
+
+This method will keep the sparsity between clusters and the density inside a cluster, which, depending on the problem at hand, can be necessary
+for the study of the data.
+
+More information about this method can be found in the following paper:
+Cupertino, T.H., Huertas, J., & Zhao, L. (2013). Data clustering using controlled consensus in complex networks. Neurocomputing, 118, 132-140.
+
+
 Time Series Constructors
 ------------------------
 
@@ -108,6 +128,26 @@ Notice that this generate an undirected graph since the correlation between two 
 two variations of this method: one for univariate time series and another for multivariate times series.
 
 More information about those methods can be found on: Yang, Y., Yang, H.: Complex network-based time series analysis. Physica A 387, 1381–1386 (2008)
+
+Recurrence Constructor
+^^^^^^^^^^^^^^^^^^^^^^
+
+The recurrence constructor uses the concept of recurrence on the phase space of the time series. Given an embedding of the time series (such as the
+Takens Embedding), it is said that two states are recurrent if they are similar enough. So, given two states in the phase space defined as:
+
+.. math::
+    x_i = (x(t), x(t + \tau), \dots , x(t + (d - 1)\tau))
+
+Two states are recurrent if:
+
+.. math::
+    ||x_i - x_j|| < \epsilon
+
+Then, after the embedding was made, one can easily calculate a distance matrix between each of the states. Then, the self-loops (diagonals) are
+set to zero and every entry smaller than epsilon will generate an edge between the states of the series.
+
+More information about this method can be found on: Donner, R.V., Zou, Y., Donges, J.F., Marwan, N., Kurths, J.: Recurrence
+networks – a novel paradigm for nonlinear time series analysis. New J. Phys. 12, 033025 (2010)
 
 Supervised Methods
 ==================
@@ -251,7 +291,15 @@ If we weren't able to merge the pair of nodes with greatest value on the modular
 greatest value and so on until a valid merge takes place.
 
 The algorithm runs until there is no node without a class remaining. The original paper of this algorithm states a network reduction technique to
-improve the algorithms performance. However, it wasn't implemented yet.
+improve the algorithms performance. In order to use it, the reduction_factor list parameter should be set during
+the class instantiation.
+
+This parameter will define, for each class, the percentage of the network reduction. The basic working of the method is:
+
+- Select two nodes from the same class at random
+- Remove the first one
+- Redirects the edges from the first node to the second
+- Repeat until the desired percentage of the nodes are removed
 
 More information about this method can be found on: Silva, Thiago & Zhao, Liang. (2012). Semi-Supervised Learning Guided
 by the Modularity Measure in Complex Networks. Neurocomputing. 78. 30-37. 10.1016/j.neucom.2011.04.042.

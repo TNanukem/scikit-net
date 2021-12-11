@@ -63,8 +63,9 @@ def test_fit_G(X_y_generator, result_generator):
 
 def test_set_get_params():
     ML = ModularityLabelPropagation()
-    ML.set_params(n_iter=10)
-    assert ML.get_params() == {}
+    ML.set_params(reduction_factor=None)
+    assert ML.get_params() == {'reduction_factor': None,
+                               'random_state': None}
 
 
 def test_raise_on_fit_1(X_y_generator):
@@ -78,3 +79,45 @@ def test_raise_on_fit_2(X_y_generator):
     with pytest.raises(Exception):
         ML.fit(X=X_y_generator[0], y=X_y_generator[1], G=None,
                constructor=None)
+
+
+def test_raises_on_aggregation(X_y_generator):
+    knn_c = KNNConstructor(k=5, sep_comp=False)
+
+    ML = ModularityLabelPropagation(reduction_factor=0.3)
+    with pytest.raises(Exception):
+        ML.fit(X_y_generator[0], X_y_generator[1], constructor=knn_c)
+
+    ML = ModularityLabelPropagation(reduction_factor=[0.5, 0.2])
+    with pytest.raises(Exception):
+        ML.fit(X_y_generator[0], X_y_generator[1], constructor=knn_c)
+
+    ML = ModularityLabelPropagation(reduction_factor=[2, 13, 9])
+    with pytest.raises(Exception):
+        ML.fit(X_y_generator[0], X_y_generator[1], constructor=knn_c)
+
+
+def test_aggregation(X_y_generator):
+    knn_c = KNNConstructor(k=5, sep_comp=False)
+    ML = ModularityLabelPropagation(reduction_factor=[0.5, 0.5, 0],
+                                    random_state=42)
+    ML.fit(X_y_generator[0], X_y_generator[1], constructor=knn_c)
+
+    print(ML.get_propagated_labels())
+    print(len(ML.get_propagated_labels()))
+
+    expected_result = [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                       0., 0., 0.,  0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                       0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1.,
+                       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+                       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+                       1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+                       1., 1., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 1., 2.,
+                       2., 2., 2., 2., 2., 2., 2., 1., 2., 2., 2., 2., 2., 2.,
+                       2., 1., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2., 2.,
+                       2., 2., 2., 2., 2., 2., 2., 2., 2., 2.]
+    np.testing.assert_equal(expected_result,
+                            np.array(ML.get_propagated_labels(),
+                                     dtype='float32')
+                            )

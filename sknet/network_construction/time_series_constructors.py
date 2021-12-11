@@ -5,6 +5,8 @@ import numpy as np
 
 from scipy.stats import pearsonr
 from abc import ABCMeta, abstractmethod
+from sklearn.metrics import pairwise_distances
+from gtda.time_series import SingleTakensEmbedding
 
 
 class TimeSeriesBaseConstructor(metaclass=ABCMeta):
@@ -250,5 +252,114 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         C[C >= self.r] = 1
 
         self.G_ = nx.from_numpy_array(C)
+
+        self.X_ = X
+
+
+class UnivariateRecurrenceNetworkConstructor(TimeSeriesBaseConstructor):
+    """
+    Creates a networkX complex network from a univariate time series
+    by creating edges between recurrent (close) states on the phase space
+    of the series.
+
+    The phase space is constructed using the Takens Embedding Theorem.
+
+    Parameters
+    ----------
+    epsilon : float, optional (default=0.1)
+        The required distance between two states for them to be considered a
+        recurrence and hence be connected
+    d : int, optional (default=None)
+        The dimension of the embedding to be used for the Takens embedding.
+        If None and tau is also None, the best parameter will be
+        automatically chosen.
+    tau : int, optional (default=None)
+        The time delay to be used on the Takens Embedding. If None and
+        tau is also None, the best parameter will be automatically chosen.
+    metric : str, optional (default='euclidean')
+        The distance metric to be used to calculate the distance between
+        two points on the phase space
+    n_jobs : int, optional (default=None)
+        The number of parallel processes to be used when applying the
+        Takens embedding and when calculating the distances between the
+        states. None means 1 core will be used, -1 means use all cores.
+    Attributes
+    ----------
+    G_ : NetworkX graph
+        The network version of the inserted time series data
+
+    Examples
+    --------
+    >>> from sknet.network_construction import UnivariateRecurrenceNetworkConstructor  # noqa: E501
+    >>> constructor = UnivariateRecurrenceNetworkConstructor(10)
+    >>> constructor.fit(X)
+    >>> G_ = constructor.transform()
+
+    References
+    ----------
+    Donner, R.V., Zou, Y., Donges, J.F., Marwan, N., Kurths, J.: Recurrence
+    networks – a novel paradigm for nonlinear time series analysis.
+    New J. Phys. 12, 033025 (2010)
+
+    """
+    def __init__(self, epsilon=0.1, d=None, tau=None, metric='euclidean',
+                 n_jobs=None):
+        self.epsilon = epsilon
+        self.d = d
+        self.tau = tau
+        self.metric = metric
+        self.n_jobs = n_jobs
+
+    def get_params(self, deep=True):
+        return {'epsilon': self.epsilon, 'd': self.d, 'tau': self.tau,
+                'metric': self.metric, 'n_jobs': self.n_jobs}
+
+    def add_nodes(self, X, y=None):
+        """Add nodes to an existing network inside a fitted transformer
+        object
+
+        Parameters
+        ----------
+        X : {array-like, pandas dataframe} of shape (n_samples, n_features)
+            The input data.
+        y : ignored, used just for API convention
+        """
+        if isinstance(X, pd.DataFrame) or isinstance(X, pd.Series):
+            X = np.array(X)
+
+        if X.shape[1] > 1:
+            warnings.warn(
+                """More than one feature identified in the series.
+                   Recurrence should not be used on multivariate series"""
+            )
+
+        if self.X_ is not None:
+            X = np.vstack((self.X_, X))
+
+        # Generate the state space of the time series X
+        if self.d is None and self.tau is None:
+            takens_dict = {'parameters_type': 'search'}
+        else:
+            takens_dict = {'parameters_type': 'fixed', 'dimension': self.d,
+                           'time_delay': self.tau}
+
+        takens_dict['n_jobs'] = self.n_jobs
+
+        takens = SingleTakensEmbedding(**takens_dict)
+
+        space = takens.fit_transform(X)
+
+        # Get distance metric
+        R = pairwise_distances(space, metric=self.metric, n_jobs=self.n_jobs)
+
+        # Generate the recurrence matrix
+        R[R <= self.epsilon] = 1
+        R[R > self.epsilon] = 0
+
+        # Remove self-loops
+        for i in range(R.shape[0]):
+            R[i, i] = 0
+
+        self.G_ = nx.from_numpy_array(R)
 
         self.X_ = X
