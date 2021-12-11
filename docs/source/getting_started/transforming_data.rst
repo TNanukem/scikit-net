@@ -16,7 +16,7 @@ to turn tabular data into a complex network.
 .. code-block:: python
 
     from sklearn.datasets import load_iris
-    from dataset_constructors import KNNEpislonRadiusConstructor
+    from sknet.network_construction import KNNEpislonRadiusConstructor
     X, y = load_iris(return_X_y = True)
     ke_c = KNNEpislonRadiusConstructor(k=3, epsilon=0.3)
     ke_c.fit(X, y)
