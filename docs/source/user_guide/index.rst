@@ -9,7 +9,7 @@ User Guide
 This section will introduce the main modules of the sknet and show some examples as well as explaining the theory
 behind the implemented algorithms.
 
-The sknet main structure divide the classes into two main types: auxiliar methods such as utilities and transformations and
+The sknet main structure divide the classes into two main types: auxiliary methods such as utilities and transformations and
 machine learning methods which are divided into supervised, unsupervised and semi supervised methods.
 
 Most of the Machine Learning methods can work both with tabular data (in form of a Pandas Dataframe or a Numpy Array) and with graph data

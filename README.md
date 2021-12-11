@@ -17,6 +17,8 @@ The sknet installation is available via PiPy:
 
 The following code snippet shows how one can transform tabular data into a complex network and then use it to create a classifier:
 
+    from sklearn.model_selection import train_test_split
+    from sklean.metrics import accuracy_score
     from sklearn.datasets import load_iris
     from sknet.network_construction import KNNConstructor
     from sknet.supervised import EaseOfAccessClassifier
