@@ -77,7 +77,7 @@ as transforming tabular data or time series data into complex networks represent
 
 - A `semi-supervised` package responsible for semi-supervised learning tasks where one have a small set of labeled data.  
 
-- A `utils` package with some auxiliar functions for the other packages.
+- A `utils` package with some auxiliary functions for the other packages.
 
 As of the version 0.1.0, the following algorithms are implemented:
 
