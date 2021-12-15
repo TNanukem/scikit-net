@@ -24,7 +24,7 @@ bibliography: paper.bib
 
 Recent advances in Machine Learning, an area that leverages data to identify patterns,
 and in Complex Networks, an area which leverages connections between entities to identify
-complex phenomena and can be considered as an extension to the graph theory, are
+complex phenomena and can be considered as an extension to graph theory, are
 changing society. Both of those areas can be related to the task of 'learning' from data [@book].
 
 There seems, however, to be a gap between those two research areas.
@@ -48,7 +48,7 @@ Altough ``NetworkX`` presents some algorithms that could be considered Machine L
 this is not the focus of the library which focuses on developing the tools to create and analyze
 complex networks.
 
-Also, the ``sklearn`` package is the go-to python package for machine learning methods, however,
+Also, the ``sklearn`` package is the go-to Python package for machine learning methods, however,
 it focus is mainly on tabular data and there is no available method directly appliable to complex
 networks.
 
@@ -60,9 +60,9 @@ networks area.
 # Library overview
 
 `sknet` tries to maintain, as much as possible, the known API structure from
-the `scikit-learn`. It main focus is in transforming data from one kind of representation
+`scikit-learn`. Its main focus is in transforming data from one kind of representation
 to the other and allowing combined methods from the Complex Networks and Machine Learning
-areas to allow the users to find patterns on their data.
+areas to allow the users to find patterns in their data.
 
 ![`sknet` packages structure.\label{fig:packages}](sknet_packages.png)
 
@@ -73,9 +73,9 @@ as transforming tabular data or time series data into complex networks represent
 
 - A `supervised` package responsible for supervised learning tasks where one has labeled data.  
 
-- A `unsupervised` package responsible for unsupervised learning tasks where one does not have labeled data.  
+- An `unsupervised` package responsible for unsupervised learning tasks where one does not have labeled data.  
 
-- A `semi-supervised` package responsible for semi-supervised learning tasks where one have a small set of labeled data.  
+- A `semi-supervised` package responsible for semi-supervised learning tasks where one has a small set of labeled data.  
 
 - A `utils` package with some auxiliary functions for the other packages.
 
