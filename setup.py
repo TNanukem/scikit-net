@@ -7,12 +7,12 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="scikit-net",
-    version="0.0.2",
+    version="0.1.0",
     description="Machine Learning in Complex Networks",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/TNanukem/scikit-net",
-    download_url='https://github.com/TNanukem/scikit-net/archive/refs/tags/v0.0.1.tar.gz',  # noqa: E501
+    download_url='https://github.com/TNanukem/scikit-net/archive/refs/tags/v0.1.0.tar.gz',  # noqa: E501
     keywords=['Machine Learning', 'Complex Networks'],
     author="Tiago Toledo Jr",
     author_email="tiago.nanu@gmail.com",
@@ -31,6 +31,7 @@ setup(
                       'giotto-tda',
                       'joblib',
                       'networkx',
+                      'node2vec',
                       'numpy',
                       'packaging',
                       'pandas',

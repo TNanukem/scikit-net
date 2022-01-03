@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modularity Label Propagation now allows a network reduction proposed by Silva et al.
 - New constructor, based on single linkage clustering heuristics, was added to transform datasets into networks
 - New time series constructor for univariate series using the recurrence on the phase space
+- First network to dataset constructor using Node2Vec
 
 ### Changed
 

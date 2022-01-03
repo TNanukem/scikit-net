@@ -149,6 +149,22 @@ set to zero and every entry smaller than epsilon will generate an edge between t
 More information about this method can be found on: Donner, R.V., Zou, Y., Donges, J.F., Marwan, N., Kurths, J.: Recurrence
 networks – a novel paradigm for nonlinear time series analysis. New J. Phys. 12, 033025 (2010)
 
+Dataset Constructors
+--------------------
+
+The dataset constructors are responsible for generating a dataset (tabular) representation of a given complex network.
+
+Node2Vec Constructor
+^^^^^^^^^^^^^^^^^^^^
+
+The node2vec constructor uses the idea of the node2vec algorithm to generate a dataset from a complex network. To it,
+the constructor creates an embbeding representation for each node, on a d-dimensional space (where d is chosen by the user),
+this representation is then used as features for each of the nodes.
+
+For more information about node2vec, refer to: Grover, Aditya & Leskovec, Jure. (2016). node2vec: Scalable Feature
+Learning for Networks. KDD : proceedings. International Conference on Knowledge Discovery & Data Mining. 2016. 855-864.
+10.1145/2939672.2939754.
+
 Supervised Methods
 ==================
 

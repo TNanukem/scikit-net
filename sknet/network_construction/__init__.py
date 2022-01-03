@@ -1,4 +1,5 @@
 # flake8: noqa
+from .network_constructors import Node2VecConstructor
 from .dataset_constructors import KNNConstructor
 from .dataset_constructors import EpsilonRadiusConstructor
 from .dataset_constructors import KNNEpislonRadiusConstructor
