@@ -1,7 +1,9 @@
 import pytest
 import pandas as pd
+import networkx as nx
 
 from sknet.network_construction import dataset_constructors
+from sknet.network_construction import network_constructors
 from sknet.network_construction import time_series_constructors
 
 
@@ -26,6 +28,11 @@ def X_y_generator():
     y = pd.Series([0, 0, 1, 1, 1, 1, 0, 0, 2, 2, 2, 2, 2])
 
     return X, y
+
+
+@pytest.fixture
+def G_generator():
+    return nx.karate_club_graph()
 
 
 @pytest.fixture
@@ -282,6 +289,18 @@ def test_multivariate_series_fit(X_time_series_generator):
     assert list(G.edges) == expected_edges
 
 
+def test_node2vec_fit(G_generator):
+    constructor = network_constructors.Node2VecConstructor()
+
+    df = constructor.fit_transform(G_generator)
+
+    expected_df = pd.read_parquet(
+        'sknet/network_construction/tests/data/expected_node2vec.parquet'
+    )
+
+    pd.testing.assert_frame_equal(df, expected_df)
+
+
 def test_get_set_params():
     # Time series constructors
     constructor = (
@@ -328,6 +347,16 @@ def test_get_set_params():
     param_dict = {'k': 3, 'lambda_': 0.1,
                   'n_jobs': 2, 'sep_comp': True,
                   'metric': 'euclidean'}
+    constructor.set_params(**param_dict)
+    assert param_dict == constructor.get_params()
+
+    # Network Constructor
+    constructor = network_constructors.Node2VecConstructor()
+    param_dict = {'d': 32, 'walk_length': 10,
+                  'num_walks': 10, 'p': 1, 'q': 1,
+                  'weight_key': 'weight', 'n_jobs': 1,
+                  'random_state': 42}
+
     constructor.set_params(**param_dict)
     assert param_dict == constructor.get_params()
 

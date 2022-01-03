@@ -5,6 +5,8 @@ from abc import ABCMeta, abstractmethod
 
 class BaseConstructor(metaclass=ABCMeta):
     """
+    Base class for networks construcstors. Do not use it, use one of
+    the subclasses instead.
     """
     def __init__(self):
         pass
@@ -108,7 +110,7 @@ class Node2VecConstructor(BaseConstructor):
 
         """
         n2v = Node2Vec(graph=G, dimensions=self.d,
-                       walk_lenght=self.walk_length,
+                       walk_length=self.walk_length,
                        num_walks=self.num_walks,
                        p=self.p, q=self.q,
                        weight_key=self.weight_key,
@@ -121,7 +123,7 @@ class Node2VecConstructor(BaseConstructor):
         self.df_ = pd.DataFrame(
             model.wv.vectors,
             index=G.nodes(),
-            columns=[f'Feature {x}' for x in range(len(self.n_features_))])
+            columns=[f'Feature {x}' for x in range(self.n_features_)])
 
         return self
 
