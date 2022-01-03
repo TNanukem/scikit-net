@@ -7,6 +7,7 @@ importlib-metadata==3.7.2
 iniconfig==1.1.1
 joblib==1.0.1
 networkx==2.5
+node2vec==0.4.4
 numpy==1.19.5
 packaging==20.9
 pandas==1.1.5
