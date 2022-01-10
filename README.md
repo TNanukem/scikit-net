@@ -37,3 +37,20 @@ The following code snippet shows how one can transform tabular data into a compl
 ## :pencil: Documentation
 
 We provide an extensive API documentation as well with some user guides. The documentation is available on https://tnanukem.github.io/scikit-net/
+
+## Citation
+
+If you used the scikit-net on your research project, please cite us using the following publication:
+
+    @article{Toledo2021,
+    doi = {10.21105/joss.03864},
+    url = {https://doi.org/10.21105/joss.03864},
+    year = {2021},
+    publisher = {The Open Journal},
+    volume = {6},
+    number = {68},
+    pages = {3864},
+    author = {Tiago Toledo},
+    title = {sknet: A Python framework for Machine Learning in Complex Networks},
+    journal = {Journal of Open Source Software}
+    }
