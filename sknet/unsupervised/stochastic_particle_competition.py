@@ -248,15 +248,10 @@ class StochasticParticleCompetition():
         return N_bar
 
     def _calculate_P_pref(self, A, N_bar):
-        aux = np.zeros((self.V, self.V, self.K))
+        num = A[:, :, np.newaxis] * N_bar
+        den = np.sum(A[:, :, np.newaxis] * N_bar, axis=1)
 
-        num = [[[A[i, j] * N_bar[j, k] for k in range(self.K)
-                 ] for j in range(self.V)] for i in range(self.V)]
-        den = [[[np.sum([
-            A[i, l_]*N_bar[l_, k] for l_ in range(self.V)
-            ]) for k in range(self.K)] for j in range(self.V)
-            ] for i in range(self.V)]
-        aux[:, :, :] = np.divide(np.array(num), np.array(den))
+        aux = np.divide(num, den[:, np.newaxis, :])
 
         return aux
 
