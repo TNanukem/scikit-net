@@ -203,7 +203,8 @@ class EaseOfAccess(metaclass=ABCMeta):
             return stationary.real
 
         else:
-            raise Exception("{} is not an available method to calculate the markov chain \
+            raise Exception("{} is not an available method to \
+                calculate the markov chain \
                 convergence. Available methods are 'power' and \
                 'eigenvalue'".format(method))
 

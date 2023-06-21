@@ -249,7 +249,7 @@ class ModularityLabelPropagation():
             else:
                 desired_value = 1
 
-            while(N_tilda != desired_value):
+            while N_tilda != desired_value:
                 # Randomly select two nodes from the class
                 nodes = np.random.choice(
                     [i[0] for i in G.nodes(data=True) if i[1]['class'] == class_],  # noqa: E501
