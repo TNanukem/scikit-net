@@ -4,7 +4,7 @@ import networkx as nx
 
 from scipy.stats import mode
 from abc import ABCMeta, abstractmethod
-from sklearn.neighbors import DistanceMetric
+from sklearn.metrics import DistanceMetric
 
 from sknet.network_construction import KNNConstructor
 
@@ -203,7 +203,8 @@ class EaseOfAccess(metaclass=ABCMeta):
             return stationary.real
 
         else:
-            raise Exception("{} is not an available method to calculate the markov chain \
+            raise Exception("{} is not an available method to \
+                calculate the markov chain \
                 convergence. Available methods are 'power' and \
                 'eigenvalue'".format(method))
 
@@ -281,7 +282,7 @@ class EaseOfAccessClassifier(EaseOfAccess):
         super().__init__(epsilon, t, method)
 
     def _aggregation_method(self, tau):
-        return mode(tau['y'])[0][0]
+        return mode(tau['y'], keepdims=False)[0]
 
 
 class EaseOfAccessRegressor(EaseOfAccess):

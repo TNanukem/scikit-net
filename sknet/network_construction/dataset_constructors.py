@@ -28,7 +28,8 @@ class BaseConstructor(metaclass=ABCMeta):
 
     @abstractmethod
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters
@@ -54,7 +55,8 @@ class BaseConstructor(metaclass=ABCMeta):
         """
 
     def fit(self, X, y=None):
-        """Fit the constructor creating the NetworkX graph
+        """
+        Fit the constructor creating the NetworkX graph
 
         Parameters
         ----------
@@ -86,7 +88,8 @@ class BaseConstructor(metaclass=ABCMeta):
         return self
 
     def transform(self):
-        """Returns the networkX graph after the constructor is fitted
+        """
+        Returns the networkX graph after the constructor is fitted
 
         Returns
         -----
@@ -99,7 +102,9 @@ class BaseConstructor(metaclass=ABCMeta):
             raise Exception("Transformer is not fitted")
 
     def fit_transform(self, X, y=None):
-        """Fit the constructor creating the NetworkX graph and returns the graph
+        """
+        Fit the constructor creating the NetworkX graph and
+        returns the graph
 
         Parameters
         ----------
@@ -124,7 +129,8 @@ class BaseConstructor(metaclass=ABCMeta):
         return self.G_
 
     def get_network(self):
-        """Retrieves the network generated in the constructor class
+        """
+        Retrieves the network generated in the constructor class
         """
         return self.G_
 
@@ -199,7 +205,8 @@ class KNNConstructor(BaseConstructor):
         super().__init__(k, None, metric, leaf_size, sep_comp)
 
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters
@@ -345,7 +352,8 @@ class EpsilonRadiusConstructor(BaseConstructor):
         super().__init__(None, epsilon, metric, leaf_size, sep_comp)
 
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters
@@ -711,7 +719,8 @@ class SingleLinkageHeuristicConstructor(BaseConstructor):
                 'metric': self.metric, 'n_jobs': self.n_jobs}
 
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters

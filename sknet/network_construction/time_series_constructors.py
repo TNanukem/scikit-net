@@ -37,7 +37,8 @@ class TimeSeriesBaseConstructor(metaclass=ABCMeta):
         return self
 
     def transform(self):
-        """Returns the networkX graph after the constructor is fitted
+        """
+        Returns the networkX graph after the constructor is fitted
 
         Returns
         -----
@@ -55,7 +56,9 @@ class TimeSeriesBaseConstructor(metaclass=ABCMeta):
         return self.G_
 
     def fit_transform(self, X, y=None):
-        """Fit the constructor creating the NetworkX graph and returns the graph
+        """
+        Fit the constructor creating the NetworkX graph and
+        returns the graph
 
         Parameters
         ----------
@@ -128,7 +131,8 @@ class UnivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         return {"r": self.r, 'L': self.L}
 
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters
@@ -217,7 +221,8 @@ class MultivariateCorrelationConstructor(TimeSeriesBaseConstructor):
         return {"r": self.r}
 
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters
@@ -315,7 +320,8 @@ class UnivariateRecurrenceNetworkConstructor(TimeSeriesBaseConstructor):
                 'metric': self.metric, 'n_jobs': self.n_jobs}
 
     def add_nodes(self, X, y=None):
-        """Add nodes to an existing network inside a fitted transformer
+        """
+        Add nodes to an existing network inside a fitted transformer
         object
 
         Parameters
