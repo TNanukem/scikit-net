@@ -269,7 +269,7 @@ class StochasticParticleCompetition():
     def _calculate_P_tran(self, P_rand, P_pref, P_rean, S, t):
         non_exhausted = (
             1 - S[np.newaxis, np.newaxis, :]) * (
-                self.lambda_ * P_pref + ( 1 - self.lambda_) * P_rand[:, :, np.newaxis]
+                self.lambda_ * P_pref + (1 - self.lambda_) * P_rand[:, :, np.newaxis]  # noqa
             )
 
         exhausted = S[np.newaxis, np.newaxis, :] * P_rean
