@@ -4,7 +4,7 @@ import networkx as nx
 
 from scipy.stats import mode
 from abc import ABCMeta, abstractmethod
-from sklearn.neighbors import DistanceMetric
+from sklearn.metrics import DistanceMetric
 
 from sknet.network_construction import KNNConstructor
 
@@ -282,7 +282,8 @@ class EaseOfAccessClassifier(EaseOfAccess):
         super().__init__(epsilon, t, method)
 
     def _aggregation_method(self, tau):
-        return mode(tau['y'])[0][0]
+        print(mode(tau['y']))
+        return mode(tau['y'])[0]
 
 
 class EaseOfAccessRegressor(EaseOfAccess):

@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from sklearn.datasets import load_iris, load_boston
+from sklearn.datasets import load_iris, load_diabetes
 from sklearn.model_selection import train_test_split
 
 from sknet.network_construction import KNNConstructor
@@ -23,7 +23,7 @@ def X_y_generator_classification():
 @pytest.fixture
 def X_y_generator_regression():
 
-    X, y = load_boston(return_X_y=True)
+    X, y = load_diabetes(return_X_y=True)
     X = X[:150, :]
     y = y[:150]
     X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -135,19 +135,15 @@ def test_predictions_classifier(class_generator_classifier):
 
 
 def test_predictions_regressor(class_generator_regressor):
-
-    expected = [21.28, 18.0, 17.26, 20.74, 17.2, 15.62, 20.98,
-                17.759999999999998, 19.52, 23.479999999999997,
-                20.080000000000002, 19.64, 18.76, 15.62, 18.22,
-                22.779999999999998, 18.560000000000002, 19.52,
-                21.619999999999997, 17.759999999999998, 15.440000000000001,
-                16.04, 15.440000000000001, 16.66, 16.860000000000003, 18.0,
-                16.259999999999998, 17.619999999999997, 25.080000000000002,
-                15.5, 14.62, 18.6, 21.660000000000004, 17.619999999999997,
-                20.1, 18.0, 19.860000000000003, 17.5, 21.24, 17.5,
-                17.619999999999997, 25.22, 25.340000000000003,
-                19.639999999999997, 14.66, 19.619999999999997,
-                16.9, 16.04, 22.52, 17.6]
+    # MUDAR AQUI
+    expected = [130.0, 183.0, 170.0, 114.8, 149.4, 108.4, 113.8,
+                 211.8, 116.8, 109.8, 105.8, 109.8, 158.8, 178.8,
+                 150.0, 178.8, 154.4, 127.4, 112.0, 130.0, 197.0,
+                 120.8, 95.6, 135.4, 135.4, 158.8, 227.0, 136.8,
+                 112.4, 157.2, 164.4, 127.4, 212.2, 130.0, 123.8,
+                 140.8, 134.4, 147.4, 155.6, 203.6, 173.2, 124.2,
+                 123.6, 180.0, 100.4, 130.0, 79.4, 206.4, 124.2,
+                 211.8]
 
     eigen_pred = class_generator_regressor[2]
     power_pred = class_generator_regressor[3]
