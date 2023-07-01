@@ -282,8 +282,7 @@ class EaseOfAccessClassifier(EaseOfAccess):
         super().__init__(epsilon, t, method)
 
     def _aggregation_method(self, tau):
-        print(mode(tau['y']))
-        return mode(tau['y'])[0]
+        return mode(tau['y'], keepdims=False)[0]
 
 
 class EaseOfAccessRegressor(EaseOfAccess):
