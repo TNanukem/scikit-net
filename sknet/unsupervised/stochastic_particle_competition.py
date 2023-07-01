@@ -248,15 +248,10 @@ class StochasticParticleCompetition():
         return N_bar
 
     def _calculate_P_pref(self, A, N_bar):
-        aux = np.zeros((self.V, self.V, self.K))
+        num = A[:, :, np.newaxis] * N_bar
+        den = np.sum(A[:, :, np.newaxis] * N_bar, axis=1)
 
-        num = [[[A[i, j] * N_bar[j, k] for k in range(self.K)
-                 ] for j in range(self.V)] for i in range(self.V)]
-        den = [[[np.sum([
-            A[i, l_]*N_bar[l_, k] for l_ in range(self.V)
-            ]) for k in range(self.K)] for j in range(self.V)
-            ] for i in range(self.V)]
-        aux[:, :, :] = np.divide(np.array(num), np.array(den))
+        aux = np.divide(num, den[:, np.newaxis, :])
 
         return aux
 
@@ -264,32 +259,22 @@ class StochasticParticleCompetition():
         aux = np.zeros((self.V, self.V, self.K))
 
         for k in range(self.K):
-            den = np.sum(
-                    [np.argmax(N_bar[u, :]) == k for u in range(self.V)]
-                )
-            for j in range(self.V):
-                num = 0
-                if np.argmax(N_bar[j, :]) == k:
-                    num = 1
-
-                aux[:, j, k] = [num/den for i in range(self.V)]
+            den = np.sum(np.argmax(N_bar, axis=1) == k)
+            num = np.zeros(self.V)
+            num[np.argmax(N_bar, axis=1) == k] = 1
+            aux[:, :, k] = num[:, np.newaxis] / den
 
         return aux
 
     def _calculate_P_tran(self, P_rand, P_pref, P_rean, S, t):
-        aux = np.zeros((self.V, self.V, self.K))
-        for k in range(self.K):
+        non_exhausted = (
+            1 - S[np.newaxis, np.newaxis, :]) * (
+                self.lambda_ * P_pref + (1 - self.lambda_) * P_rand[:, :, np.newaxis]  # noqa
+            )
 
-            non_exhausted = (
-                1 - S[k]) * (
-                    self.lambda_ * P_pref[:, :, k] + (
-                        1 - self.lambda_) * P_rand
-                    )
+        exhausted = S[np.newaxis, np.newaxis, :] * P_rean
 
-            exhausted = S[k] * P_rean[:, :, k]
-            aux[:, :, k] = non_exhausted + exhausted
-
-        return aux
+        return non_exhausted + exhausted
 
     def _choose_next_vertices(self, P_tran, p):
         aux = np.zeros(self.K)
